@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const connectDB = require("./src/config/mongo.js");
+const apiKeyRoutes = require("./src/routes/apiKeys.js");
 // const authRoutes = require("./src/routes/auth");
 // const newsRoutes = require("./src/routes/api/news");
 
@@ -21,14 +22,13 @@ connectDB()
   .catch((error) => console.log(error));
 
 // Middleware
-// app.use(cors());
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// app.use(express.json());
-
-// app.use(express.urlencoded({ extended: true }));
-
+// API Routes
+app.use("/api/keys", apiKeyRoutes);
 // app.use("/api", newsRoutes);
-
 // app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {

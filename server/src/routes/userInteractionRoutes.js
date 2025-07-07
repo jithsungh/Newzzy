@@ -1,13 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const {likeArticle, dislikeArticle, saveArticle, shareArticle} = require('../controllers/userInteractionController');
+const {
+  likeArticle,
+  dislikeArticle,
+  saveArticle,
+  shareArticle,
+  getRecentActivity,
+} = require("../controllers/userInteractionController");
 
-const VerifyJWT = require('../middlewares/verifyjwt.js');
+const verifyJWT = require("../middlewares/verifyjwt.js");
+const updateStreak = require("../middlewares/updateStreak.js");
 
-router.post('/like', VerifyJWT, likeArticle);
-router.post('/dislike', VerifyJWT, dislikeArticle);
-router.post('/save', VerifyJWT, saveArticle);
-router.post('/share', VerifyJWT, shareArticle);
+router.post("/like", verifyJWT, updateStreak, likeArticle);
+router.post("/dislike", verifyJWT, updateStreak, dislikeArticle);
+router.post("/save", verifyJWT, updateStreak, saveArticle);
+router.post("/share", verifyJWT, updateStreak, shareArticle);
+router.get("/recentactivity", verifyJWT, updateStreak, getRecentActivity);
 
 module.exports = router;

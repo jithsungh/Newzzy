@@ -1,45 +1,97 @@
 const jwt = require("jsonwebtoken");
 
-
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
-const verifyJWT = (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
+  const logPrefix = "[VERIFY_JWT]";
+
+  console.log(
+    `${logPrefix} ==================== JWT VERIFICATION STARTED ====================`
+  );
+
   const authHeader = req.headers["authorization"];
-  // console.log("Auth Header:", authHeader);
-  
-  const accessToken = authHeader && authHeader.split(" ")[1]; // 'Bearer <token>'
+  const accessToken = authHeader && authHeader.split(" ")[1];
   const refreshToken = req.cookies?.refreshToken;
 
-  if (!accessToken)
+  console.log(`${logPrefix} User: unknown | Step 1: Checking for access token`);
+  if (!accessToken) {
+    console.log(
+      `${logPrefix} User: unknown | Step 1 FAILED: Access token missing`
+    );
     return res.status(401).json({ message: "Access token missing" });
+  }
 
-  jwt.verify(accessToken, ACCESS_SECRET, (err, decoded) => {
-    if (!err) {
-      // ✅ Access token is valid
-      req.user = { id: decoded.id };
-      res.locals.accessToken = accessToken; // reuse same token
-      return next();
+  try {
+    console.log(`${logPrefix} User: unknown | Step 2: Verifying access token`);
+    const decoded = await verifyToken(accessToken, ACCESS_SECRET);
+    req.user = { id: decoded.id };
+    res.locals.accessToken = accessToken;
+
+    console.log(
+      `${logPrefix} User: ${decoded.id} | Step 2 SUCCESS: Access token verified`
+    );
+    console.log(
+      `${logPrefix} User: ${decoded.id} | ==================== JWT VERIFICATION COMPLETED ====================`
+    );
+    return next();
+  } catch (accessErr) {
+    console.log(
+      `${logPrefix} User: unknown | Step 2 FAILED: Access token invalid, checking refresh token`
+    );
+
+    if (!refreshToken) {
+      console.log(
+        `${logPrefix} User: unknown | Step 3 FAILED: Refresh token missing`
+      );
+      return res.status(403).json({ message: "Refresh token missing" });
     }
 
-    // ❌ Access token invalid → try refresh token
-    if (!refreshToken)
-      return res.status(403).json({ message: "Refresh token missing" });
+    try {
+      console.log(
+        `${logPrefix} User: unknown | Step 3: Verifying refresh token`
+      );
+      const refreshDecoded = await verifyToken(refreshToken, REFRESH_SECRET);
 
-    jwt.verify(refreshToken, REFRESH_SECRET, (refreshErr, refreshDecoded) => {
-      if (refreshErr)
-        return res.status(403).json({ message: "Invalid refresh token" });
-
-      // ✅ Refresh token valid → generate new access token
+      console.log(
+        `${logPrefix} User: ${refreshDecoded.id} | Step 4: Generating new access token`
+      );
       const newAccessToken = jwt.sign(
         { id: refreshDecoded.id },
         ACCESS_SECRET,
         { expiresIn: "15m" }
       );
-
       req.user = { id: refreshDecoded.id };
       res.locals.accessToken = newAccessToken;
-      next();
+
+      console.log(
+        `${logPrefix} User: ${refreshDecoded.id} | Step 4 SUCCESS: New access token generated`
+      );
+      console.log(
+        `${logPrefix} User: ${refreshDecoded.id} | ==================== JWT VERIFICATION COMPLETED ====================`
+      );
+      return next();
+    } catch (refreshErr) {
+      console.error(
+        `${logPrefix} User: unknown | ==================== JWT VERIFICATION ERROR ====================`
+      );
+      console.error(
+        `${logPrefix} User: unknown | Refresh token verification failed:`,
+        {
+          message: refreshErr.message,
+          timestamp: new Date().toISOString(),
+        }
+      );
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+  }
+};
+
+const verifyToken = (token, secret) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) reject(err);
+      else resolve(decoded);
     });
   });
 };

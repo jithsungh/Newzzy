@@ -1,7 +1,10 @@
 import React from "react";
 import { Heart , Bookmark , Flame} from "lucide-react";
+import useDataContext from "../../hooks/useDataContext";
 
 const StatsCard = () => {
+  const { streak,likedArticleIds, savedArticleIds} = useDataContext();
+  
     // getliked articles
     // get saved articles
   return (
@@ -19,7 +22,7 @@ const StatsCard = () => {
               <span className="text-secondary ">
               Liked Articles</span>
             </div>
-            <span className="font-semibold text-secondary">0</span>
+            <span className="font-semibold text-secondary">{likedArticleIds.length}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -27,7 +30,7 @@ const StatsCard = () => {
               <span className="text-secondary ">
               Saved Articles</span>
             </div>
-            <span className="font-semibold text-secondary">0</span>
+            <span className="font-semibold text-secondary">{savedArticleIds.length}</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -35,7 +38,7 @@ const StatsCard = () => {
               <span className="text-secondary ">
               Reading Streak</span>
             </div>
-            <span className="font-semibold text-secondary">7 days</span>
+            <span className="font-semibold text-secondary">{streak} days</span>
           </div>
         </div>
       </div>

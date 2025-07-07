@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const connectDB = require("./src/config/mongo.js");
+const { scheduleStreakReset } = require("./src/utils/streakResetScheduler.js");
 const recommendationsRoutes = require("./src/routes/recommendations.js");
 const authRoutes = require("./src/routes/authRoutes.js"); // const newsRoutes = require("./src/routes/api/news");
 const profileRoutes = require("./src/routes/profileRoutes.js");
@@ -15,12 +16,25 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 connectDB()
   .then(() => {
-    app.listen(process.env.port, () => {
-      console.log(`Server is running on port ${process.env.port}`);
-      console.log(`http://localhost:${process.env.port}/`);
+    console.log("[SERVER] Database connected successfully");
+
+    // Initialize streak reset scheduler
+    console.log("[SERVER] Initializing streak reset scheduler...");
+    scheduleStreakReset();
+    console.log("[SERVER] Streak reset scheduler initialized");
+
+    app.listen(process.env.PORT, () => {
+      console.log(`[SERVER] Server is running on port ${process.env.PORT}`);
+      console.log(`[SERVER] Server URL: http://localhost:${process.env.PORT}/`);
+      console.log(
+        "[SERVER] ==================== SERVER STARTUP COMPLETED ===================="
+      );
     });
   })
-  .catch((error) => console.log(error));
+  .catch((error) => {
+    console.error("[SERVER] Database connection failed:", error);
+    console.log(error);
+  });
 
 // Middleware
 app.use(

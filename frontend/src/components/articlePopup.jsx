@@ -42,7 +42,7 @@ const dateFormat = (dateString) => {
   return `${day} ${month} ${year}`;
 };
 
-const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext }) => {
+const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendation }) => { // add it here
   if (!article) return null;
   const popupRef = useRef(null);
 
@@ -54,11 +54,17 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext }) => {
     likedArticleIds,
     dislikedArticleIds,
     savedArticleIds,
-  } = useDataContext();
+    handleMarkAsRead,
+  } = useDataContext(); 
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
-
+  
+  useEffect(() => {
+      if (isRecommendation) {
+        handleMarkAsRead(article._id);
+      }
+  },[]);
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {

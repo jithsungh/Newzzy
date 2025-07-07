@@ -27,12 +27,10 @@ const SignupPage = () => {
       setLoading(false);
       return;
     }
-
     const result = await signup({ name, email, password }, setLogin);
-
     if (result.success) {
       toast.success("Signup successful!");
-      navigate("/home");
+      navigate("/preferences", { state: { verified: true } });
     } else {
       toast.error(result.error || "Signup failed");
     }

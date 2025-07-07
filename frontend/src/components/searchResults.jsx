@@ -46,22 +46,6 @@ const SearchResults = ({ searchQuery, onClose }) => {
     }
   };
 
-  const handleLike = () => {
-    console.log("Like button clicked");
-  };
-
-  const handleDislike = () => {
-    console.log("Dislike button clicked");
-  };
-
-  const handleSave = () => {
-    console.log("Save button clicked");
-  };
-
-  const handleShare = () => {
-    console.log("Share button clicked");
-  };
-
   if (!searchQuery.trim()) return null;
   
   return (
@@ -95,10 +79,6 @@ const SearchResults = ({ searchQuery, onClose }) => {
                 onClick={handleOnClick}
                 key={article._id}
                 article={article}
-                handleLike={handleLike}
-                handleDislike={handleDislike}
-                handleSave={handleSave}
-                handleShare={handleShare}
               />
               ))}
             </div>
@@ -133,6 +113,7 @@ const SearchResults = ({ searchQuery, onClose }) => {
               ? handlePopupNext
               : null
           }
+          isRecommendation={false} 
         />
       )}
     </div>

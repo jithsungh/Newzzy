@@ -15,9 +15,9 @@ import Search from "./pages/search";
 import { useAuth } from "./context/authContext";
 import ProtectedRoute from "./context/protectedRoutes";
 import Layout from "./components/layout";
+import UserPreferences from "./pages/userpreferences";
 
 import useDataContext from "./hooks/useDataContext";
-
 
 function App() {
   // const { user } = useAuth();
@@ -35,7 +35,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/search" element={<Search />} />
           <Route path="/" element={<IndexPage />} />
-          <Route path="/explore" element={<ExplorePage />}/>
+          <Route path="/explore" element={<ExplorePage />} />
           <Route
             path="/home"
             element={
@@ -60,9 +60,17 @@ function App() {
               </ProtectedRoute>
             }
           />
-         <Route path="/article" element={<Article />} />
-         <Route path="*" element={<NotFound />} />                
+          <Route path="/article" element={<Article />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
+          <Route
+            path="/preferences"
+            element={
+              <ProtectedRoute>
+                <UserPreferences />
+              </ProtectedRoute>
+            }
+          />
       </Routes>
     </div>
   );

@@ -208,6 +208,7 @@ function ExplorePage() {
               ? handlePopupNext
               : null
           }
+          isRecommendation={false} 
         />
       )}
     </div>

@@ -1,16 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { refreshRecommendations } = require('../controllers/refreshRecommendations');
-const { getRecommendations, deleteOldRecommendations, markAsRead } = require('../controllers/recommendationsController');
+const {
+  refreshRecommendations,
+} = require("../controllers/refreshRecommendations");
+const {
+  getRecommendations,
+  deleteOldRecommendations,
+  markAsRead,
+} = require("../controllers/recommendationsController");
 
-const VerifyJWT = require('../middlewares/verifyjwt.js');
+const verifyJWT = require("../middlewares/verifyjwt.js");
+const updateStreak = require("../middlewares/updateStreak.js");
 
-
-router.get('/get', VerifyJWT, getRecommendations);
-router.post('/refresh', VerifyJWT,  refreshRecommendations); 
-router.delete('/delete', VerifyJWT, deleteOldRecommendations);
-router.post('/markasread', VerifyJWT, markAsRead);
+router.get("/get", verifyJWT, updateStreak, getRecommendations);
+router.post("/refresh", verifyJWT, updateStreak, refreshRecommendations);
+router.delete("/delete", verifyJWT, updateStreak, deleteOldRecommendations);
+router.post("/markasread", verifyJWT, updateStreak, markAsRead);
 
 module.exports = router;
-

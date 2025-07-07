@@ -18,6 +18,12 @@ import {
   refreshRecommendations,
   markRecommendationAsRead,
 } from "../api/recommendations";
+import {
+  getUser,
+  getStreak,
+  getRecentActivity,
+  toggleTheme,
+} from "../api/profile";
 import { toast } from "react-hot-toast";
 import { useAuth } from "./authContext";
 
@@ -33,11 +39,33 @@ export const DataProvider = ({ children }) => {
   const [savedArticleIds, setSavedArticleIds] = useState([]);
   const [savedArticles, setSavedArticles] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [streak, setStreak] = useState(0);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { user } = useAuth();
+  const { user, setLogin } = useAuth();
   const [currentTheme, setCurrentTheme] = useState(user?.theme || "light");
+  const [isDarkMode, setIsDarkMode] = useState(currentTheme === "dark");
+
+  
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+      try {
+        const response = await getStreak();
+        if (response.success) {
+          setStreak(response.data.streak || 0);
+        } else {
+          console.error("Failed to fetch user data:", userData.error);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [setLogin]);
 
   const handleLike = async (id) => {
     const isAlreadyLiked = likedArticleIds.includes(id);
@@ -202,7 +230,6 @@ export const DataProvider = ({ children }) => {
         console.error(refreshed.error || "Failed to mark as read.");
         return;
       }
-      await fetchRecommendations();
     } catch (err) {
       console.error("Something went wrong!");
       console.error(err);
@@ -286,6 +313,31 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const fetchRecentActivity = async () => {
+    try {
+      const response = await getRecentActivity();
+      if (response.success) {
+        console.log("Recent activity:", response.data);
+        setRecentActivity(response.data.data || []);
+      } else {
+        setRecentActivity([]);
+        console.error("Failed to fetch recent activity:", response.error);
+      }
+    } catch (error) {
+      setRecentActivity([]);
+      console.error("Error fetching recent activity:", error);
+    }
+  };
+
+  const handleToggleTheme = async () => {
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    setCurrentTheme(newTheme);
+    if (user) {
+      await toggleTheme(newTheme, setLogin);
+    }
+    setIsDarkMode(newTheme === "dark");
+  };
+
   useEffect(() => {
     if (user) {
       fetchLikedArticleIds();
@@ -298,6 +350,7 @@ export const DataProvider = ({ children }) => {
     <DataContext.Provider
       value={{
         latestArticles,
+        recentActivity,
         trendingArticles,
         searchResults,
         savedArticles,
@@ -323,10 +376,15 @@ export const DataProvider = ({ children }) => {
         fetchLikedArticleIds,
         fetchDislikedArticleIds,
         fetchSavedArticleIds,
+        fetchRecentActivity,
         loading,
-        error,
+        error, 
+        streak,
         currentTheme,
         setCurrentTheme,
+        isDarkMode,
+        handleToggleTheme,
+        setIsDarkMode,
         handleMarkAsRead, 
       }}
     >

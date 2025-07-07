@@ -22,31 +22,47 @@ const processAllArticles = async () => {
         continue;
       }
 
+      // Extract high-quality single-word keywords using the improved system
       const processedKeywords = processArticle(
+        article, // Pass the full article for advanced extraction
         preprocessedContent,
         article.article_id
       );
-      //   console.log(`Keywords for: ${article.title}`);
-      //   console.log(processedKeywords);
 
-      // save article
-      const allKeywords = [
-        ...processedKeywords,
-        ...(article.keywords || []),
-        ...(article.category || []),
-      ];
-      let uniqueKeywords = [];
-      for (const kw of allKeywords) {
-        if (kw && !uniqueKeywords.includes(kw.toLowerCase()) && kw.length > 2) {
-          uniqueKeywords.push(kw.toLowerCase());
-        }
-      }
-      article.keywords = uniqueKeywords;
+      console.log(`Keywords for: ${article.title}`);
+      console.log("Extracted single-word keywords:", processedKeywords);
+
+      // Only use high-quality single-word keywords (strict filtering)
+      const finalKeywords = processedKeywords
+        .filter(
+          (keyword) =>
+            keyword &&
+            typeof keyword === "string" &&
+            !keyword.includes(" ") && // Ensure single words only
+            keyword.length >= 4 &&
+            keyword.length <= 15 &&
+            /^[a-zA-Z]+$/.test(keyword) // Only alphabetic characters
+        )
+        .slice(0, 8); // Limit to max 8 keywords
+
+      article.keywords = finalKeywords;
       article.preprocessedContent = preprocessedContent;
 
       // save the processed article back to the database
-      await NewsArticles.updateOne({ _id: article._id }, { $set: article });
-      console.log(`Processed and saved article ${article._id.toString()}`);
+      await NewsArticles.updateOne(
+        { _id: article._id },
+        {
+          $set: {
+            keywords: finalKeywords,
+            preprocessedContent: preprocessedContent,
+          },
+        }
+      );
+      console.log(
+        `Processed and saved article ${article._id.toString()} with ${
+          finalKeywords.length
+        } keywords`
+      );
     } catch (error) {
       console.error(
         `Error processing article ${article._id.toString()}:`,

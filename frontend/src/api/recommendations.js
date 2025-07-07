@@ -72,10 +72,10 @@ const deleteOldRecommendations = async () => {
   }
 };
 
-const markRecommendationAsRead = async (recommendationId) => {
+const markRecommendationAsRead = async (articleId) => {
   try {
     const response = await api.post("/recommendations/markasread", {
-      recommendationId,
+      articleId,
     });
     if (response.status === 200) {
       const { AccessToken } = response.data;

@@ -14,9 +14,6 @@ const HomePage = () => {
   const { recommendations, fetchRecommendations, handleRefresh } = useDataContext();
   const { user, setLogout } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
-  const [likedArticles, setLikedArticles] = useState([]);
-  const [dislikedArticles, setDislikedArticles] = useState([]);
-  const [savedArticles, setSavedArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [currentArticleIndex, setCurrentArticleIndex] = useState(null);
@@ -105,6 +102,7 @@ const HomePage = () => {
               ? handlePopupNext
               : null
           }
+          isRecommendation={true}
         />
       )}
     </div>

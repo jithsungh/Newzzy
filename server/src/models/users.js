@@ -29,6 +29,14 @@ const userSchema = new mongoose.Schema(
       of: Number,
       default: {},
     },
+    streak: {
+      type: Number,
+      default: 0,
+    },
+    lastActiveDate: {
+      type: Date,
+      default: Date.now,
+    },
     REFRESH_TOKEN: String,
   },
   {

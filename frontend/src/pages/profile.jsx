@@ -6,6 +6,7 @@ import StatsCard from "../components/profile/statsCard.jsx";
 import ActionCard from "../components/profile/actionCard.jsx";
 import ArticleCard from "../components/articleCard";
 import ArticlePopup from "../components/articlePopup";
+import Activity from "../components/profile/Activity.jsx";
 
 import { Heart, Bookmark } from "lucide-react";
 import { LogOut } from "lucide-react";
@@ -15,11 +16,17 @@ import useDataContext from "../hooks/useDataContext";
 const ProfilePage = () => {
   const { user, setLogout } = useAuth();
   const [activeTab, setActiveTab] = useState("SavedArticlesTab");
-  const { savedArticles, fetchSavedArticles } = useDataContext();
+  const { savedArticles, fetchSavedArticles, fetchRecentActivity, recentActivity } = useDataContext();
 
   React.useEffect(() => {
     fetchSavedArticles();
   }, []);
+
+  React.useEffect(() => {
+    if (activeTab === "ActivityTab") {
+      fetchRecentActivity();
+    }
+  }, [activeTab]);
 
 
   const handleTabClick = (tabId) => {
@@ -154,24 +161,24 @@ const ProfilePage = () => {
                     </div>
                     <div className="p-6 pt-0">
                       <div className="space-y-4">
-                        <div className=" p-3 bg-base-100 rounded-lg">
-                          <div className="flex items-center justify-between ">
-                            <p className="flex gap-2 text-sm font-medium text-primary">
-                              <Heart className="text-red-500" />
-                              Liked an article
+                        {recentActivity.length === 0 ? (
+                          <div className="p-6 flex flex-col items-center justify-center py-12">
+                            <Heart className="w-10 h-10 text-secondary" />
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-400 mb-2">
+                              No recent activity
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-center">
+                              Your recent activity will appear here.
                             </p>
-                            <p className="text-xs text-secondary ">2 hours ago</p>
                           </div>
-                        </div>
-                        <div className=" p-3 bg-base-100 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <p className="flex gap-2 text-sm font-medium text-primary">
-                              <Bookmark className="text-blue-500" />
-                              Saved an article
-                            </p>
-                            <p className="text-xs text-secondary">5 hours ago</p>
-                          </div>
-                        </div>
+                        ) : (
+                          recentActivity.map((activity) => (
+                            <Activity
+                              key={activity._id}
+                              activity={activity}
+                            />
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>
@@ -193,6 +200,7 @@ const ProfilePage = () => {
               ? handlePopupNext
               : null
           }
+          isRecommendation={false} 
         />
       )}
 
