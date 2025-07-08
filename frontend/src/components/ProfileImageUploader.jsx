@@ -162,7 +162,7 @@ export const ProfileImageUploader = ({ onImageUpload, defaultUrl }) => {
 
         {imageFile && !isUploading && (
           <div className="flex gap-2 mt-2">
-            <Button size="sm" onClick={handleUpload}>
+            <Button size="sm" onClick={handleUpload} className="bg-primary text-white">
               Upload
             </Button>
             <Button
@@ -183,7 +183,7 @@ export const ProfileImageUploader = ({ onImageUpload, defaultUrl }) => {
               variant="outline"
               size="sm"
               onClick={handleRemoveProfilePicture}
-              className="text-destructive border-destructive hover:bg-destructive hover:text-white"
+              className="text-destructive border-destructive text-primary hover:bg-primary hover:text-neutral"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Remove Picture
