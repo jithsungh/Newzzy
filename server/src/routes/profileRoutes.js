@@ -45,5 +45,11 @@ router.post(
 );
 router.get("/getuser", verifyJWT, updateStreak, profileController.getUser);
 router.get("/getstreak", verifyJWT, updateStreak, profileController.getStreak);
+router.get(
+  "/checkinterests",
+  verifyJWT,
+  updateStreak,
+  profileController.checkUserInterests
+);
 
 module.exports = router;

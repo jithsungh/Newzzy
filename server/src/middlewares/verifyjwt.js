@@ -44,7 +44,12 @@ const verifyJWT = async (req, res, next) => {
       console.log(
         `${logPrefix} User: unknown | Step 3 FAILED: Refresh token missing`
       );
-      return res.status(403).json({ message: "Refresh token missing" });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+      });
+      return res.status(403).json({ message: "Invalid refresh token" });
     }
 
     try {
@@ -82,6 +87,12 @@ const verifyJWT = async (req, res, next) => {
           timestamp: new Date().toISOString(),
         }
       );
+      // Return 403 to trigger frontend logout when refresh token is expired/invalid
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+      });
       return res.status(403).json({ message: "Invalid refresh token" });
     }
   }

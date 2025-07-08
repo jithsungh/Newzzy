@@ -2,15 +2,12 @@ import api from "./axios";
 
 const signup = async (userData, setLogin) => {
   try {
-    const response = await api.post(
-      "/auth/signup",
-      userData
-    );
+    const response = await api.post("/auth/signup", userData);
 
     if (response.status === 201) {
       console.log("Signup successful:", response.message);
-      const { AccessToken, user } = response.data;
-      setLogin(user, AccessToken);
+      const { AccessToken, newUser } = response.data;
+      setLogin(newUser, AccessToken);
       return { success: true, data: response.data };
     }
     return { success: false, error: response.data.error };
@@ -54,6 +51,8 @@ const logout = async (setLogout) => {
     return { success: false, error: response.data.error };
   } catch (error) {
     console.error("Logout error:", error);
+    // Even if the server logout fails, clear local storage
+    setLogout();
     return {
       success: false,
       error: error.response?.data?.message || "Logout failed",

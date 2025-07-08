@@ -1,5 +1,6 @@
 // src/api/api.js
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const api = axios.create({
   baseURL: "http://localhost:5433/api",
@@ -28,10 +29,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear local storage on unauthorized
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403)
+    ) {
+      // Clear local storage on unauthorized or refresh token expired
       localStorage.removeItem("user");
       localStorage.removeItem("AccessToken");
+
+      // Show toast notification for session expiry
+      if (error.response.status === 403) {
+        toast.error("Session expired. Please log in again.");
+      } else {
+        toast.error("Authentication failed. Please log in again.");
+      }
+
+      // Dispatch custom event to notify auth context
+      window.dispatchEvent(new CustomEvent("auth-logout"));
+
       // Redirect to login page
       window.location.href = "/login";
     }

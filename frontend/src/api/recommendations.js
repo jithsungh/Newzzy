@@ -1,12 +1,18 @@
 import api from "./axios";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 const getRecommendations = async () => {
   try {
     const response = await api.get("/recommendations/get");
     if (response.status === 200) {
-      toast.success("Recommendations fetched successfully!");
-      const { AccessToken} = response.data;
+      // Only show success toast if we actually have recommendations
+      if (
+        response.data.recommendations &&
+        response.data.recommendations.length > 0
+      ) {
+        toast.success("Recommendations fetched successfully!");
+      }
+      const { AccessToken } = response.data;
 
       localStorage.setItem("AccessToken", AccessToken);
       const recommendations = response.data.recommendations.map((rec) => ({
@@ -23,6 +29,24 @@ const getRecommendations = async () => {
     };
   } catch (error) {
     console.error("Error fetching recommendations:", error);
+
+    // Handle insufficient interests case (403 or 404 status)
+    if (
+      (error.response?.status === 403 || error.response?.status === 404) &&
+      error.response?.data?.needsPreferences
+    ) {
+      // Don't show error toast for this case, it will be handled by the calling component
+      return {
+        success: false,
+        needsPreferences: true,
+        error: error.response.data.error || "User needs to set preferences",
+        message:
+          error.response.data.message ||
+          "Please set your interests to get personalized recommendations",
+        interestCount: error.response.data.interestCount || 0,
+      };
+    }
+
     return {
       success: false,
       error: error.response?.data?.error || "An unexpected error occurred",
@@ -44,6 +68,22 @@ const refreshRecommendations = async () => {
     };
   } catch (error) {
     console.error("Error refreshing recommendations:", error);
+
+    // Handle insufficient interests case
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.needsPreferences
+    ) {
+      return {
+        success: false,
+        needsPreferences: true,
+        error: error.response.data.error || "User needs to set preferences",
+        message:
+          error.response.data.message ||
+          "Please set your interests to get personalized recommendations",
+      };
+    }
+
     return {
       success: false,
       error: error.response?.data?.error || "An unexpected error occurred",

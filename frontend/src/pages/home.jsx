@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
 import toast from "react-hot-toast";
 import ArticleCard from "../components/articleCard.jsx";
 import ArticlePopup from "../components/articlePopup.jsx";
+import { Button } from "../components/ui/button";
 import { RefreshCcw } from "lucide-react";
-
 
 import useDataContext from "../hooks/useDataContext";
 
 const HomePage = () => {
-  const { recommendations, fetchRecommendations, handleRefresh } = useDataContext();
+  const { recommendations, fetchRecommendations, handleRefresh } =
+    useDataContext();
   const { user, setLogout } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,6 +29,32 @@ const HomePage = () => {
   if (!user) {
     return <Navigate to="/login" />;
   }
+
+  const checkAndFetchRecommendations = async () => {
+    if (isLoading) return; // Prevent multiple simultaneous calls
+
+    setIsLoading(true);
+    try {
+      const result = await fetchRecommendations();
+      if (result && result.needsPreferences) {
+        // User needs to set preferences
+        toast.error(
+          "Please set your interests to get personalized recommendations"
+        );
+        navigate("/preferences", {
+          state: {
+            fromHome: true,
+            interestCount: result.interestCount || 0,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error checking recommendations:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOnClick = (article) => {
     const index = recommendations.findIndex((a) => a._id === article._id);
     setCurrentArticleIndex(index);
@@ -49,18 +77,10 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    if(recommendations.length === 0 ) {
-      fetchRecommendations();
+    if (recommendations.length === 0) {
+      checkAndFetchRecommendations();
     }
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-8 pt-10">
@@ -72,23 +92,71 @@ const HomePage = () => {
           </p>
         </div>
         <div>
-          <button className="btn btn-primary" onClick={handleRefresh}>
+          <button
+            className="btn btn-primary"
+            onClick={async () => {
+              const result = await handleRefresh();
+              if (result && result.needsPreferences) {
+                // User needs to set preferences
+                toast.error(
+                  result.message ||
+                    "Please set your interests to get personalized recommendations"
+                );
+                navigate("/preferences", {
+                  state: {
+                    fromHome: true,
+                    interestCount: result.interestCount || 0,
+                  },
+                });
+              }
+            }}
+          >
             <RefreshCcw /> Refresh
           </button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mb-6">
-        {recommendations && recommendations.length > 0 ? (
+        {isLoading ? (
+          // Loading state
+          Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-neutral rounded-lg border border-input shadow-sm p-6 animate-pulse"
+            >
+              <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
+              <div className="h-3 bg-muted rounded w-full mb-2"></div>
+              <div className="h-3 bg-muted rounded w-full mb-2"></div>
+              <div className="h-3 bg-muted rounded w-2/3"></div>
+            </div>
+          ))
+        ) : recommendations && recommendations.length > 0 ? (
           recommendations.map((article) => (
-            
-              <ArticleCard
-                key={article._id}
-                onClick={handleOnClick}
-                article={article} 
-              />
+            <ArticleCard
+              key={article._id}
+              onClick={handleOnClick}
+              article={article}
+            />
           ))
         ) : (
-          <p>No recommendations available at the moment.</p>
+          <div className="col-span-full text-center py-12">
+            <p className="text-secondary text-lg mb-4">
+              No recommendations available at the moment.
+            </p>
+            <Button
+              onClick={checkAndFetchRecommendations}
+              disabled={isLoading}
+              className="bg-primary text-white"
+            >
+              {isLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-sm mr-2"></span>
+                  Loading...
+                </>
+              ) : (
+                "Refresh Recommendations"
+              )}
+            </Button>
+          </div>
         )}
       </div>
       {isOpen && currentArticleIndex !== null && (

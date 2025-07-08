@@ -4,18 +4,22 @@ const getUserInterests = require("../services/getUserInterests");
 
 const refreshRecommendations = async (req, res) => {
   const logPrefix = "[REFRESH_RECOMMENDATIONS]";
-  
-  console.log(`${logPrefix} ==================== REFRESH RECOMMENDATIONS STARTED ====================`);
-  
+
+  console.log(
+    `${logPrefix} ==================== REFRESH RECOMMENDATIONS STARTED ====================`
+  );
+
   const tokenToReturn = res.locals.accessToken;
 
   try {
     const user_id = req.user.id;
-    
+
     console.log(`${logPrefix} User: ${user_id} | Step 1: Validating user ID`);
-    
+
     if (!user_id) {
-      console.log(`${logPrefix} User: ${user_id} | Step 1 FAILED: User ID missing`);
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 1 FAILED: User ID missing`
+      );
       return res.status(400).json({
         success: false,
         AccessToken: tokenToReturn,
@@ -23,7 +27,9 @@ const refreshRecommendations = async (req, res) => {
       });
     }
 
-    console.log(`${logPrefix} User: ${user_id} | Step 2: Fetching new recommendations`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 2: Fetching new recommendations`
+    );
     const status = await refetchRecommendations(user_id);
 
     // Even if we have 0 recommendations, we should not return an error
@@ -35,8 +41,12 @@ const refreshRecommendations = async (req, res) => {
         ? `Recommendations refreshed with ${status.topCount} articles (limited content available)`
         : "No articles available for recommendations at this time";
 
-    console.log(`${logPrefix} User: ${user_id} | Step 3: Refresh completed with ${status.topCount} recommendations`);
-    console.log(`${logPrefix} User: ${user_id} | ==================== REFRESH RECOMMENDATIONS COMPLETED ====================`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 3: Refresh completed with ${status.topCount} recommendations`
+    );
+    console.log(
+      `${logPrefix} User: ${user_id} | ==================== REFRESH RECOMMENDATIONS COMPLETED ====================`
+    );
 
     res.status(200).json({
       success: true,
@@ -52,17 +62,48 @@ const refreshRecommendations = async (req, res) => {
     });
 
     // delete old seen recommendations (run asynchronously)
-    console.log(`${logPrefix} User: ${user_id} | Step 4: Cleaning up old recommendations (async)`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 4: Cleaning up old recommendations (async)`
+    );
     deleteReadandOld(user_id).catch((err) =>
-      console.error(`${logPrefix} User: ${user_id} | Error cleaning up old recommendations:`, err)
+      console.error(
+        `${logPrefix} User: ${user_id} | Error cleaning up old recommendations:`,
+        err
+      )
     );
   } catch (error) {
-    console.error(`${logPrefix} User: ${req.user?.id || 'unknown'} | ==================== REFRESH RECOMMENDATIONS ERROR ====================`);
-    console.error(`${logPrefix} User: ${req.user?.id || 'unknown'} | Error details:`, {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
+    console.error(
+      `${logPrefix} User: ${
+        req.user?.id || "unknown"
+      } | ==================== REFRESH RECOMMENDATIONS ERROR ====================`
+    );
+    console.error(
+      `${logPrefix} User: ${req.user?.id || "unknown"} | Error details:`,
+      {
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      }
+    );
+
+    // Handle insufficient interests case
+    if (error.message === "INSUFFICIENT_INTERESTS") {
+      console.log(
+        `${logPrefix} User: ${
+          req.user?.id || "unknown"
+        } | Returning 403 - Insufficient interests`
+      );
+      return res.status(403).json({
+        success: false,
+        AccessToken: tokenToReturn,
+        needsPreferences: true,
+        error:
+          "User needs to set at least 3 interests before getting recommendations",
+        message:
+          "Please set your interests to get personalized recommendations",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       AccessToken: tokenToReturn,
@@ -74,35 +115,66 @@ const refreshRecommendations = async (req, res) => {
 
 const refetchRecommendations = async (user_id) => {
   const logPrefix = "[REFETCH_RECOMMENDATIONS]";
-  
-  console.log(`${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS STARTED ====================`);
-  
+
+  console.log(
+    `${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS STARTED ====================`
+  );
+
   // Input validation
   if (!user_id) {
-    console.log(`${logPrefix} User: ${user_id} | FAILED: User ID is required for recommendation fetching`);
+    console.log(
+      `${logPrefix} User: ${user_id} | FAILED: User ID is required for recommendation fetching`
+    );
     throw new Error("User ID is required for recommendation fetching");
   }
 
   try {
-    console.log(`${logPrefix} User: ${user_id} | Step 1: Fetching user interests and latest articles`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 1: Fetching user interests and validating`
+    );
     const userInterestsMap = await getUserInterests(user_id); // Map<string, number>
+
+    // Check if user has sufficient interests (at least 3)
+    const interestCount = userInterestsMap ? userInterestsMap.size : 0;
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 1 VALIDATION: User has ${interestCount} interests`
+    );
+
+    if (interestCount < 3) {
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 1 FAILED: Insufficient interests (${interestCount}/3 required)`
+      );
+      throw new Error("INSUFFICIENT_INTERESTS");
+    }
+
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 2: Fetching latest articles`
+    );
     const latestArticles = await getLatestNewsArticles(); // Only fetch required fields
 
     if (!latestArticles || latestArticles.length === 0) {
-      console.log(`${logPrefix} User: ${user_id} | Step 1 RESULT: No articles available for recommendations`);
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 2 RESULT: No articles available for recommendations`
+      );
       return { topCount: 0 };
     }
 
-    console.log(`${logPrefix} User: ${user_id} | Step 2: Processing ${latestArticles.length} articles for recommendations`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 3: Processing ${latestArticles.length} articles for recommendations`
+    );
 
     // Extract and categorize user interests intelligently
     const { primaryInterests, secondaryInterests, fallbackInterests } =
       extractUserInterests(userInterestsMap);
 
-    console.log(`${logPrefix} User: ${user_id} | Step 3: User interests categorized - Primary(${primaryInterests.size}), Secondary(${secondaryInterests.size}), Fallback(${fallbackInterests.size})`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 3: User interests categorized - Primary(${primaryInterests.size}), Secondary(${secondaryInterests.size}), Fallback(${fallbackInterests.size})`
+    );
 
     // Score articles using improved multi-tier matching algorithm
-    console.log(`${logPrefix} User: ${user_id} | Step 4: Scoring articles using intelligent matching`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 4: Scoring articles using intelligent matching`
+    );
     const scoredArticles = scoreArticlesIntelligently(
       latestArticles,
       primaryInterests,
@@ -117,26 +189,36 @@ const refetchRecommendations = async (user_id) => {
     );
     const topArticles = scoredArticles.slice(0, recommendationCount);
 
-    console.log(`${logPrefix} User: ${user_id} | Step 5: Selected ${topArticles.length} top articles`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 5: Selected ${topArticles.length} top articles`
+    );
 
     // Fallback strategy if we still don't have enough recommendations
     if (topArticles.length < 50) {
-      console.log(`${logPrefix} User: ${user_id} | Step 6: Adding fallback recommendations as count is ${topArticles.length} (less than 50)`);
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 6: Adding fallback recommendations as count is ${topArticles.length} (less than 50)`
+      );
       const fallbackArticles = getFallbackRecommendations(
         latestArticles,
         topArticles,
         50
       );
       topArticles.push(...fallbackArticles);
-      console.log(`${logPrefix} User: ${user_id} | Step 6: Added ${fallbackArticles.length} fallback articles to reach minimum count`);
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 6: Added ${fallbackArticles.length} fallback articles to reach minimum count`
+      );
     }
 
     if (topArticles.length === 0) {
-      console.log(`${logPrefix} User: ${user_id} | Step 7: No recommendations could be generated`);
+      console.log(
+        `${logPrefix} User: ${user_id} | Step 7: No recommendations could be generated`
+      );
       return { topCount: 0 };
     }
 
-    console.log(`${logPrefix} User: ${user_id} | Step 7: Preparing bulk operations for ${topArticles.length} recommendations`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 7: Preparing bulk operations for ${topArticles.length} recommendations`
+    );
     const bulkOps = topArticles.map((article) => ({
       updateOne: {
         filter: { unique_id: `${user_id}-${article._id}` },
@@ -157,14 +239,22 @@ const refetchRecommendations = async (user_id) => {
     }));
 
     // Write to DB efficiently
-    console.log(`${logPrefix} User: ${user_id} | Step 8: Saving recommendations to database`);
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 8: Saving recommendations to database`
+    );
     await Recommendation.bulkWrite(bulkOps);
-    console.log(`${logPrefix} User: ${user_id} | Step 8 SUCCESS: Successfully saved ${topArticles.length} recommendations`);
-    console.log(`${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS COMPLETED ====================`);
-    
+    console.log(
+      `${logPrefix} User: ${user_id} | Step 8 SUCCESS: Successfully saved ${topArticles.length} recommendations`
+    );
+    console.log(
+      `${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS COMPLETED ====================`
+    );
+
     return { topCount: topArticles.length };
   } catch (error) {
-    console.error(`${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS ERROR ====================`);
+    console.error(
+      `${logPrefix} User: ${user_id} | ==================== REFETCH RECOMMENDATIONS ERROR ====================`
+    );
     console.error(`${logPrefix} User: ${user_id} | Error details:`, {
       message: error.message,
       stack: error.stack,
@@ -176,7 +266,17 @@ const refetchRecommendations = async (user_id) => {
 
 // Intelligently extract user interests based on frequency and semantic meaning
 const extractUserInterests = (userInterestsMap) => {
-  if (!userInterestsMap || userInterestsMap.size === 0) {
+  // Handle null, undefined, empty object, or empty Map
+  if (
+    !userInterestsMap ||
+    (userInterestsMap instanceof Map && userInterestsMap.size === 0) ||
+    (typeof userInterestsMap === "object" &&
+      Object.keys(userInterestsMap).length === 0)
+  ) {
+    console.log(
+      "User has no interests defined, using default interests for new users"
+    );
+
     // Return default interests for new users
     return {
       primaryInterests: new Map([
@@ -201,8 +301,14 @@ const extractUserInterests = (userInterestsMap) => {
     };
   }
 
+  // Convert object to Map if necessary
+  let interestsMap = userInterestsMap;
+  if (!(userInterestsMap instanceof Map)) {
+    interestsMap = new Map(Object.entries(userInterestsMap));
+  }
+
   // Convert Map to array and sort by frequency
-  const plainInterests = Object.fromEntries(userInterestsMap.entries());
+  const plainInterests = Object.fromEntries(interestsMap.entries());
   const sortedInterests = Object.entries(plainInterests).sort(
     (a, b) => b[1] - a[1]
   );
@@ -586,17 +692,23 @@ const getFallbackRecommendations = (
 
 const deleteReadandOld = async (userId) => {
   const logPrefix = "[DELETE_READ_AND_OLD]";
-  
-  console.log(`${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD STARTED ====================`);
-  
+
+  console.log(
+    `${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD STARTED ====================`
+  );
+
   try {
-    console.log(`${logPrefix} User: ${userId} | Step 1: Deleting read recommendations`);
+    console.log(
+      `${logPrefix} User: ${userId} | Step 1: Deleting read recommendations`
+    );
     const deleteReadResult = await Recommendation.deleteMany({
       user_id: userId,
       status: "read",
     });
 
-    console.log(`${logPrefix} User: ${userId} | Step 2: Deleting old recommendations (older than 30 days)`);
+    console.log(
+      `${logPrefix} User: ${userId} | Step 2: Deleting old recommendations (older than 30 days)`
+    );
     // also delete recommendations older than 30 days with status "new"
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -606,11 +718,17 @@ const deleteReadandOld = async (userId) => {
       createdAt: { $lt: thirtyDaysAgo },
     });
 
-    console.log(`${logPrefix} User: ${userId} | Step 3: Cleanup completed - deleted ${deleteReadResult.deletedCount} read recommendations and ${deleteOldResult.deletedCount} old recommendations`);
-    console.log(`${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD COMPLETED ====================`);
+    console.log(
+      `${logPrefix} User: ${userId} | Step 3: Cleanup completed - deleted ${deleteReadResult.deletedCount} read recommendations and ${deleteOldResult.deletedCount} old recommendations`
+    );
+    console.log(
+      `${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD COMPLETED ====================`
+    );
     return true;
   } catch (error) {
-    console.error(`${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD ERROR ====================`);
+    console.error(
+      `${logPrefix} User: ${userId} | ==================== DELETE READ AND OLD ERROR ====================`
+    );
     console.error(`${logPrefix} User: ${userId} | Error details:`, {
       message: error.message,
       stack: error.stack,

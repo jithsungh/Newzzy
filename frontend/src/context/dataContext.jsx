@@ -26,6 +26,7 @@ import {
 } from "../api/profile";
 import { toast } from "react-hot-toast";
 import { useAuth } from "./authContext";
+import { useNavigate } from "react-router-dom";
 
 export const DataContext = createContext();
 
@@ -47,8 +48,7 @@ export const DataProvider = ({ children }) => {
   const { user, setLogin } = useAuth();
   const [currentTheme, setCurrentTheme] = useState(user?.theme || "light");
   const [isDarkMode, setIsDarkMode] = useState(currentTheme === "dark");
-
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -138,7 +138,9 @@ export const DataProvider = ({ children }) => {
     );
     // remove from savedArticles
     setSavedArticles((prev) =>
-      isAlreadySaved ? prev.filter((article) => article.article_id._id !== id) : [...prev]
+      isAlreadySaved
+        ? prev.filter((article) => article.article_id._id !== id)
+        : [...prev]
     );
 
     try {
@@ -174,7 +176,7 @@ export const DataProvider = ({ children }) => {
       });
     }
     const res = await shareArticle(article._id);
-    if(res.success){
+    if (res.success) {
       toast.success("Article Shared!");
     }
   };
@@ -196,10 +198,28 @@ export const DataProvider = ({ children }) => {
   };
   const fetchRecommendations = async () => {
     try {
-      const { recommendations } = await getRecommendations();
-      setRecommendations(recommendations || []);
+      const result = await getRecommendations();
+      if (result.success && result.recommendations.length > 0 ) {
+        setRecommendations(result.recommendations || []);
+        return { success: true };
+      } else if (result.needsPreferences) {
+        // User needs to set preferences - don't show error toast, let the calling component handle it
+        
+        return {
+          success: false,
+          needsPreferences: true,
+          interestCount: result.interestCount,
+        };
+      } else {
+        toast.error(result.error || "Failed to fetch recommendations");
+        setRecommendations([]);
+        navigate("/preferences", { state: { fromReset: true } });
+        return { success: false, error: result.error };
+      }
     } catch (error) {
+      console.error("Error in fetchRecommendations:", error);
       toast.error("Failed to fetch recommendations");
+      return { success: false, error: error.message };
     }
   };
 
@@ -209,15 +229,36 @@ export const DataProvider = ({ children }) => {
       const refreshed = await refreshRecommendations();
       if (!refreshed.success) {
         toast.dismiss(loadingId);
+
+        if (refreshed.needsPreferences) {
+          // User needs to set preferences
+          return {
+            success: false,
+            needsPreferences: true,
+            message: refreshed.message,
+          };
+        }
+
         toast.error(refreshed.error || "Failed to refresh.");
-        return;
+        return { success: false, error: refreshed.error };
       }
 
-      await fetchRecommendations();
+      const recommendationsResult = await fetchRecommendations();
+      if (recommendationsResult.needsPreferences) {
+        toast.dismiss(loadingId);
+        return {
+          success: false,
+          needsPreferences: true,
+          interestCount: recommendationsResult.interestCount,
+        };
+      }
+
       toast.success("Recommendations refreshed!");
+      return { success: true };
     } catch (err) {
       toast.error("Something went wrong!");
       console.error(err);
+      return { success: false, error: err.message };
     } finally {
       toast.dismiss(loadingId);
     }
@@ -355,6 +396,7 @@ export const DataProvider = ({ children }) => {
         searchResults,
         savedArticles,
         recommendations,
+        setRecommendations,
         filteredArticles,
         setFilteredArticles,
         likedArticleIds,
@@ -378,14 +420,14 @@ export const DataProvider = ({ children }) => {
         fetchSavedArticleIds,
         fetchRecentActivity,
         loading,
-        error, 
+        error,
         streak,
         currentTheme,
         setCurrentTheme,
         isDarkMode,
         handleToggleTheme,
         setIsDarkMode,
-        handleMarkAsRead, 
+        handleMarkAsRead,
       }}
     >
       {children}

@@ -1,47 +1,179 @@
 import { useState, useEffect } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import {useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+// import {
+//   Card,
+//   CardContent,
+//   CardHeader,
+//   CardTitle,
+// } from "../components/ui/card";
 import { Checkbox } from "../components/ui/checkbox";
 import { Badge } from "../components/ui/badge";
-import { CheckCircle, ArrowRight, Moon, Sun, Settings } from "lucide-react";
+import {
+  CheckCircle,
+  ArrowRight,
+  Moon,
+  Sun,
+  Settings,
+  ArrowLeft,
+} from "lucide-react";
 import useDataContext from "../hooks/useDataContext";
 import { useAuth } from "../context/authContext";
 import { setInterests } from "../api/profile";
 import { toast } from "react-hot-toast";
 
 const newsCategories = [
-  { id: "technology", label: "Technology", emoji: "💻", description: "Latest in tech and innovation" },
-  { id: "business", label: "Business", emoji: "💼", description: "Markets, startups, and economy" },
-  { id: "politics", label: "Politics", emoji: "🏛", description: "Government and political news" },
-  { id: "health", label: "Health", emoji: "🏥", description: "Medical and wellness updates" },
-  { id: "science", label: "Science", emoji: "🔬", description: "Research and discoveries" },
-  { id: "sports", label: "Sports", emoji: "⚽", description: "Games, leagues, and athletes" },
-  { id: "entertainment", label: "Entertainment", emoji: "🎬", description: "Movies, TV, and celebrity news" },
-  { id: "world", label: "World News", emoji: "🌍", description: "International and global events" },
-  { id: "finance", label: "Finance", emoji: "💰", description: "Personal finance and investing" },
-  { id: "lifestyle", label: "Lifestyle", emoji: "✨", description: "Fashion, beauty, and living" },
-  { id: "travel", label: "Travel", emoji: "✈", description: "Destinations and travel tips" },
-  { id: "food", label: "Food & Dining", emoji: "🍽", description: "Recipes and restaurant reviews" },
-  { id: "environment", label: "Environment", emoji: "🌱", description: "Climate and sustainability" },
-  { id: "education", label: "Education", emoji: "📚", description: "Learning and academic news" },
-  { id: "automotive", label: "Automotive", emoji: "🚗", description: "Cars and transportation" }
+  {
+    id: "technology",
+    label: "Technology",
+    emoji: "💻",
+    description: "Latest in tech and innovation",
+  },
+  {
+    id: "business",
+    label: "Business",
+    emoji: "💼",
+    description: "Markets, startups, and economy",
+  },
+  {
+    id: "politics",
+    label: "Politics",
+    emoji: "🏛",
+    description: "Government and political news",
+  },
+  {
+    id: "health",
+    label: "Health",
+    emoji: "🏥",
+    description: "Medical and wellness updates",
+  },
+  {
+    id: "science",
+    label: "Science",
+    emoji: "🔬",
+    description: "Research and discoveries",
+  },
+  {
+    id: "sports",
+    label: "Sports",
+    emoji: "⚽",
+    description: "Games, leagues, and athletes",
+  },
+  {
+    id: "entertainment",
+    label: "Entertainment",
+    emoji: "🎬",
+    description: "Movies, TV, and celebrity news",
+  },
+  {
+    id: "world",
+    label: "World News",
+    emoji: "🌍",
+    description: "International and global events",
+  },
+  {
+    id: "finance",
+    label: "Finance",
+    emoji: "💰",
+    description: "Personal finance and investing",
+  },
+  {
+    id: "lifestyle",
+    label: "Lifestyle",
+    emoji: "✨",
+    description: "Fashion, beauty, and living",
+  },
+  {
+    id: "travel",
+    label: "Travel",
+    emoji: "✈",
+    description: "Destinations and travel tips",
+  },
+  {
+    id: "food",
+    label: "Food & Dining",
+    emoji: "🍽",
+    description: "Recipes and restaurant reviews",
+  },
+  {
+    id: "environment",
+    label: "Environment",
+    emoji: "🌱",
+    description: "Climate and sustainability",
+  },
+  {
+    id: "education",
+    label: "Education",
+    emoji: "📚",
+    description: "Learning and academic news",
+  },
+  {
+    id: "automotive",
+    label: "Automotive",
+    emoji: "🚗",
+    description: "Cars and transportation",
+  },
 ];
 
 const UserPreferences = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const { handleToggleTheme, isDarkMode } = useDataContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [pageContext, setPageContext] = useState("new"); // "new", "insufficient", "reset"
+  const { handleToggleTheme, isDarkMode, setRecommendations } =
+    useDataContext();
   const navigate = useNavigate();
-  const { setLogin } = useAuth();
-
-  // protect userPreferences route
-  // ->>
+  const { user, setLogin } = useAuth();
   const location = useLocation();
-  
-  useEffect(() => {
-    const verified = location.state?.verified;
-  },[]);
 
+  if(!user) {
+    navigate("/login");
+    return null; // Prevent rendering if user is not logged in
+  }
+
+  // useEffect(() => {
+  //   const initializePreferences = () => {
+  //     setIsLoading(true);
+  //     try {
+  //       // Check different scenarios for why user is on this page
+  //       const verified = location.state?.verified; // New signup
+  //       const fromHome = location.state?.fromHome; // Redirected from home due to insufficient interests
+  //       const fromReset = location.state?.fromReset; // User clicked "Reset Interests" from profile
+  //       const interestCount = location.state?.interestCount || 0;
+
+  //       if (verified) {
+  //         // New user after signup
+  //         setPageContext("new");
+  //       } else if (fromHome) {
+  //         // Existing user with insufficient interests
+  //         setPageContext("insufficient");
+  //         toast.info(
+  //           `You currently have ${interestCount} interest${
+  //             interestCount !== 1 ? "s" : ""
+  //           }. Please select at least 3 categories for better personalization.`
+  //         );
+  //       } else if (fromReset) {
+  //         // User reset their interests from profile
+  //         setPageContext("new");
+  //         toast.info(
+  //           "Your interests have been reset. Please select new categories to get personalized recommendations."
+  //         );
+  //       } else {
+  //         // Default to insufficient interests case
+  //         setPageContext("insufficient");
+  //         toast.info(
+  //           "Please select at least 3 categories for personalized recommendations."
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error("Error initializing preferences:", error);
+  //       toast.error("Failed to initialize preferences");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   initializePreferences();
+  // }, [location.state]);
 
   const handleCategoryToggle = (categoryId) => {
     setSelectedCategories((prev) =>
@@ -53,26 +185,81 @@ const UserPreferences = () => {
 
   const handleSaveAndContinue = async () => {
     if (selectedCategories.length < 3) {
-      alert("Please select at least 3 categories for better personalization.");
+      toast.error(
+        "Please select at least 3 categories for better personalization."
+      );
       return;
     }
-    try{
-      // Save selected categories to user profile
-      const response = await setInterests(selectedCategories,setLogin);
-      if(response.success){
+
+    setIsLoading(true);
+    try {
+      const response = await setInterests(selectedCategories, setLogin);
+      if (response.success) {
         toast.success("Preferences saved successfully!");
-      }
-      else{
+
+        // Navigate based on context
+        const fromReset = location.state?.fromReset;
+        setRecommendations([]); 
+        navigate("/home", { replace: true });
+      } else {
         toast.error("Failed to save preferences. Please try again.");
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error saving preferences:", error);
       toast.error("An error occurred while saving preferences.");
-      return;
+    } finally {
+      setIsLoading(false);
     }
-    navigate("/home");
   };
+
+  const handleSkip = () => {
+    navigate("/");
+  };
+
+  const handleGoBack = () => {
+    if (pageContext === "insufficient") {
+      navigate("/home");
+    } else {
+      navigate("/profile");
+    }
+  };
+
+  const getPageTitle = () => {
+    switch (pageContext) {
+      case "new":
+        return "Welcome! Let's Personalize Your Experience";
+      case "insufficient":
+        return "Complete Your Interests";
+      case "reset":
+        return "Update Your Interests";
+      default:
+        return "Personalize Your News Experience";
+    }
+  };
+
+  const getPageDescription = () => {
+    switch (pageContext) {
+      case "new":
+        return "Choose your interests to get personalized news articles tailored just for you.";
+      case "insufficient":
+        return "You need at least 3 interests selected to get personalized recommendations.";
+      case "reset":
+        return "Update your interests to refine your personalized news feed.";
+      default:
+        return "Choose your interests to get personalized news articles tailored just for you.";
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg mb-4"></span>
+          <p className="text-secondary">Loading your preferences...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-base-100 transition-colors duration-300">
@@ -97,10 +284,10 @@ const UserPreferences = () => {
             <Settings className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Personalize Your News Experience
+            {getPageTitle()}
           </h1>
           <p className="text-lg text-secondary max-w-2xl mx-auto">
-            Choose your interests to get personalized news articles tailored just for you.
+            {getPageDescription()}
           </p>
         </div>
 
@@ -108,10 +295,28 @@ const UserPreferences = () => {
         <div className="bg-neutral rounded-xl border border-input shadow-lg">
           {/* Card Header */}
           <div className="p-6 pb-4 border-b border-input">
-            <h2 className="text-xl font-semibold text-primary">Choose Your Interests</h2>
-            <p className="text-sm text-secondary mt-1">
-              Select topics you're interested in. You can always change these later in your profile.
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-primary">
+                  Choose Your Interests
+                </h2>
+                <p className="text-sm text-secondary mt-1">
+                  Select topics you're interested in. Your interests will be
+                  updated automatically based on articles you like.
+                </p>
+              </div>
+              {pageContext === "insufficient" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGoBack}
+                  className="shrink-0"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Go Back
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Card Content */}
@@ -136,9 +341,13 @@ const UserPreferences = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-lg">{category.emoji}</span>
-                        <span className="font-medium text-primary">{category.label}</span>
+                        <span className="font-medium text-primary">
+                          {category.label}
+                        </span>
                       </div>
-                      <p className="text-xs text-secondary leading-relaxed">{category.description}</p>
+                      <p className="text-xs text-secondary leading-relaxed">
+                        {category.description}
+                      </p>
                     </div>
                   </div>
                   {selectedCategories.includes(category.id) && (
@@ -161,7 +370,9 @@ const UserPreferences = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {selectedCategories.map((categoryId) => {
-                    const category = newsCategories.find(cat => cat.id === categoryId);
+                    const category = newsCategories.find(
+                      (cat) => cat.id === categoryId
+                    );
                     return (
                       <Badge
                         key={categoryId}
@@ -179,31 +390,46 @@ const UserPreferences = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => navigate("/home")}
-            className="w-full sm:w-auto min-w-[140px]"
-          >
-            Skip for Now
-          </Button>
+          {pageContext === "new" && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleSkip}
+              className="w-full sm:w-auto min-w-[140px]"
+              disabled={isLoading}
+            >
+              Skip for Now
+            </Button>
+          )}
           <Button
             size="lg"
             onClick={handleSaveAndContinue}
-            disabled={selectedCategories.length === 0}
+            disabled={selectedCategories.length === 0 || isLoading}
             className="w-full sm:w-auto min-w-[180px] bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save & Continue <ArrowRight className="w-4 h-4 ml-2" />
+            {isLoading ? (
+              <>
+                <span className="loading loading-spinner loading-sm mr-2"></span>
+                Saving...
+              </>
+            ) : (
+              <>
+                Save & Continue
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
 
         {/* Helper Text */}
         {selectedCategories.length > 0 && selectedCategories.length < 3 && (
           <div className="text-center mt-6">
-            <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-950/20 px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800 inline-flex">
-              <CheckCircle className="w-4 h-4" />
-              Select at least 3 categories for better personalization
-            </p>
+            <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800">
+              <CheckCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Select at least 3 categories for better personalization
+              </p>
+            </div>
           </div>
         )}
       </div>

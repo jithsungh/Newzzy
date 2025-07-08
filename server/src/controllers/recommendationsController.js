@@ -4,6 +4,8 @@ const {
   deleteReadandOld,
 } = require("./refreshRecommendations");
 
+const User = require("../models/users");
+
 // Get all recommendations for a user latest , descending score
 const getRecommendations = async (req, res) => {
   const logPrefix = "[GET_RECOMMENDATIONS]";
@@ -28,6 +30,45 @@ const getRecommendations = async (req, res) => {
         error: "User ID is required",
       });
     }
+
+    // Check if user has sufficient interests for personalized recommendations
+    console.log(
+      `${logPrefix} User: ${userId} | Step 1.5: Checking user interests`
+    );
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log(
+        `${logPrefix} User: ${userId} | Step 1.5 FAILED: User not found`
+      );
+      return res.status(404).json({
+        success: false,
+        AccessToken: tokenToReturn,
+        error: "User not found",
+      });
+    }
+
+    const interests = user.interests || {};
+    const interestCount = Object.keys(interests).length;
+    const hasSufficientInterests = interestCount >= 3;
+
+    if (!hasSufficientInterests) {
+      console.log(
+        `${logPrefix} User: ${userId} | Step 1.5 RESULT: User has insufficient interests (${interestCount} < 3), redirecting to preferences`
+      );
+      return res.status(403).json({
+        success: false,
+        AccessToken: tokenToReturn,
+        error: "Insufficient user interests for personalized recommendations",
+        needsPreferences: true,
+        interestCount,
+        message:
+          "Please set your interests to get personalized recommendations",
+      });
+    }
+
+    console.log(
+      `${logPrefix} User: ${userId} | Step 1.5 SUCCESS: User has sufficient interests (${interestCount})`
+    );
 
     // Check if this is a retry (to prevent infinite recursion)
     const isRetry = req.query.retry === "true";

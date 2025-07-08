@@ -1,5 +1,5 @@
 // src/auth/AuthContext.jsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -20,6 +20,19 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
     localStorage.removeItem("AccessToken");
   };
+
+  // Listen for auth logout events from axios interceptor
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      setLogout();
+    };
+
+    window.addEventListener("auth-logout", handleAuthLogout);
+
+    return () => {
+      window.removeEventListener("auth-logout", handleAuthLogout);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setLogin, setLogout }}>

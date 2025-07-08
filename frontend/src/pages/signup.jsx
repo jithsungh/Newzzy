@@ -30,7 +30,9 @@ const SignupPage = () => {
     const result = await signup({ name, email, password }, setLogin);
     if (result.success) {
       toast.success("Signup successful!");
-      navigate("/preferences", { state: { verified: true } });
+      console.log("Signup successful:", result.data);
+      navigate("/preferences", { state: { fromReset: true } });
+      console.log("navigate to preferences");
     } else {
       toast.error(result.error || "Signup failed");
     }

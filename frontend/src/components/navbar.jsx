@@ -39,7 +39,6 @@ const Navbar = () => {
         : "text-secondary hover:bg-neutral hover:text-primary"
     }`;
 
-
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
   const handleSearchSubmit = (e) => {
@@ -54,12 +53,17 @@ const Navbar = () => {
     <nav className="bg-neutral shadow-lg w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          { isDarkMode ? (
+            <img src="/Newzzy-logo-dark.png" alt="Newzzy Logo" className="h-10" />
+          ) : (
+            <img src="/Newzzy-logo-light.png" alt="Newzzy Logo" className="h-10" />
+          )}
+          {/* Logo
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-primary">NewsApp</span>
+              <span className="text-2xl font-bold text-primary">Newzzy</span>
             </Link>
-          </div>
+          </div>*/}
 
           {/* Desktop Search */}
           <div className="relative w-96 max-w-full mr-8 hidden md:block">

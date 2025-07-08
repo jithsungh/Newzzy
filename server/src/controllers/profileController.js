@@ -1,6 +1,7 @@
 const User = require("../models/users");
 const bcrypt = require("bcryptjs");
 const DeletedUser = require("../models/deletedUsers");
+const Recommendation = require("../models/recommendations");
 
 // EDIT NAME
 const editName = async (req, res) => {
@@ -406,7 +407,17 @@ const resetInterests = async (req, res) => {
     await user.save();
 
     console.log(
-      `${logPrefix} User: ${userId} | Step 4: Interests reset successfully`
+      `${logPrefix} User: ${userId} | Step 4: Deleting all existing recommendations for user`
+    );
+    const deletedRecommendations = await Recommendation.deleteMany({
+      user_id: userId,
+    });
+    console.log(
+      `${logPrefix} User: ${userId} | Step 4 RESULT: Deleted ${deletedRecommendations.deletedCount} recommendations`
+    );
+
+    console.log(
+      `${logPrefix} User: ${userId} | Step 5: Interests reset and recommendations cleared successfully`
     );
     const response = {
       success: true,
@@ -723,7 +734,7 @@ const getStreak = async (req, res) => {
     const userId = req.user.id;
     const tokenToReturn = res.locals.accessToken;
 
-    console.log(`${logPrefix} User: ${userId} | Step 1: Fetching user streak`);
+    console.log(`${logPrefix} User: ${userId} | Step 1: Validating user ID`);
 
     if (!userId) {
       console.log(
@@ -736,9 +747,7 @@ const getStreak = async (req, res) => {
       });
     }
 
-    console.log(
-      `${logPrefix} User: ${userId} | Step 2: Finding user in database`
-    );
+    console.log(`${logPrefix} User: ${userId} | Step 2: Finding user`);
     const user = await User.findById(userId);
     if (!user) {
       console.log(
@@ -752,11 +761,12 @@ const getStreak = async (req, res) => {
     }
 
     console.log(
-      `${logPrefix} User: ${userId} | Step 3: User streak retrieved successfully - current streak: ${user.streak}`
+      `${logPrefix} User: ${userId} | Step 3: User streak retrieved successfully`
     );
     const response = {
       success: true,
       AccessToken: tokenToReturn,
+      message: "User streak retrieved successfully",
       streak: user.streak,
     };
 
@@ -786,6 +796,89 @@ const getStreak = async (req, res) => {
   }
 };
 
+// Check if user has sufficient interests for personalized recommendations
+const checkUserInterests = async (req, res) => {
+  const logPrefix = "[CHECK_USER_INTERESTS]";
+
+  console.log(
+    `${logPrefix} ==================== CHECK USER INTERESTS STARTED ====================`
+  );
+
+  try {
+    const userId = req.user.id;
+    const tokenToReturn = res.locals.accessToken;
+
+    console.log(`${logPrefix} User: ${userId} | Step 1: Validating user ID`);
+
+    if (!userId) {
+      console.log(
+        `${logPrefix} User: ${userId} | Step 1 FAILED: User ID is required`
+      );
+      return res.status(400).json({
+        success: false,
+        AccessToken: tokenToReturn,
+        error: "User ID is required",
+      });
+    }
+
+    console.log(
+      `${logPrefix} User: ${userId} | Step 2: Finding user and checking interests`
+    );
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log(
+        `${logPrefix} User: ${userId} | Step 2 FAILED: User not found`
+      );
+      return res.status(404).json({
+        success: false,
+        AccessToken: tokenToReturn,
+        error: "User not found",
+      });
+    }
+
+    // Check if user has interests and if they have at least 3 categories
+    const interests = user.interests || {};
+    const interestCount = Object.keys(interests).length;
+    const hasSufficientInterests = interestCount >= 3;
+
+    console.log(
+      `${logPrefix} User: ${userId} | Step 3: User has ${interestCount} interests (sufficient: ${hasSufficientInterests})`
+    );
+
+    const response = {
+      success: true,
+      AccessToken: tokenToReturn,
+      hasSufficientInterests,
+      interestCount,
+      interests: user.interests,
+    };
+
+    console.log(
+      `${logPrefix} User: ${userId} | ==================== CHECK USER INTERESTS COMPLETED ====================`
+    );
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(
+      `${logPrefix} User: ${
+        req.user?.id || "unknown"
+      } | ==================== CHECK USER INTERESTS ERROR ====================`
+    );
+    console.error(
+      `${logPrefix} User: ${req.user?.id || "unknown"} | Error details:`,
+      {
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      }
+    );
+    res.status(500).json({
+      success: false,
+      AccessToken: res.locals.accessToken,
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   editName,
   changePassword,
@@ -796,4 +889,5 @@ module.exports = {
   StoreInitialInterests,
   getUser,
   getStreak,
+  checkUserInterests,
 };
