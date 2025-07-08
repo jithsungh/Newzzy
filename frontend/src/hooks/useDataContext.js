@@ -1,6 +1,6 @@
 // src/hooks/useDataContext.js
 import { useContext } from "react";
-import { DataContext } from "../context/DataContext";
+import { DataContext } from "../context/dataContext";
 
 const useDataContext = () => useContext(DataContext);
 
