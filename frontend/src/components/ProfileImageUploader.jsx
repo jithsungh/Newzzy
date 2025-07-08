@@ -152,7 +152,7 @@ export const ProfileImageUploader = ({ onImageUpload, defaultUrl }) => {
           {!isUploading && (
             <button
               onClick={() => inputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-primary text-white p-1 rounded-full hover:bg-primary/80 transition"
+              className="absolute bottom-0 right-0 bg-primary text-neutral p-1 rounded-full hover:bg-primary/80 transition"
               aria-label="Change profile"
             >
               <Camera className="h-4 w-4" />
@@ -162,7 +162,7 @@ export const ProfileImageUploader = ({ onImageUpload, defaultUrl }) => {
 
         {imageFile && !isUploading && (
           <div className="flex gap-2 mt-2">
-            <Button size="sm" onClick={handleUpload} className="bg-primary text-white">
+            <Button size="sm" onClick={handleUpload} className="bg-primary text-neutral hover:bg-primary/80">
               Upload
             </Button>
             <Button

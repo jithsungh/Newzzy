@@ -100,8 +100,8 @@ const Navbar = () => {
                 <span>Profile</span>
               </Link>
             )}
-            <div className="bg-accent/50 text-orange-600 hover:bg-accent/70 transition-colors rounded-full px-3 py-1 flex items-center space-x-2">
-              <Flame size={18} className="fill-orange-600 text-orange-600" />
+            <div className="bg-accent/20 text-orange-500 text-lg hover:bg-accent/10 transition-colors rounded-full px-3 py-1 flex items-center space-x-2">
+              <Flame size={18} className="fill-orange-500 text-orange-500" />
               <span>{user ? streak : 0}</span>
             </div>
             {!user && (

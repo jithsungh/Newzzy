@@ -4,16 +4,20 @@ import {
   ThumbsDown as ThumbsDownFilled,
   Bookmark as BookmarkFilled,
 } from "lucide-react";
-import useDataContext from "../hooks/useDataContext"; 
+import useDataContext from "../hooks/useDataContext";
 
 import toast from "react-hot-toast";
 
-
-const ArticleCard = ({
-  article,
-  onClick,
-}) => {
-  const { handleLike, handleDislike, handleSave,handleShareArticle,likedArticleIds,dislikedArticleIds,savedArticleIds } = useDataContext();
+const ArticleCard = ({ article, onClick }) => {
+  const {
+    handleLike,
+    handleDislike,
+    handleSave,
+    handleShareArticle,
+    likedArticleIds,
+    dislikedArticleIds,
+    savedArticleIds,
+  } = useDataContext();
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
@@ -39,14 +43,21 @@ const ArticleCard = ({
         className="object-cover w-full h-full max-h-[280px] min-h-[200px] group-hover:scale-105 transition-transform duration-300"
       />
       <div className="p-4">
-        <div className="font-semibold text-lg leading-tight mb-1 line-clamp-2 text-primary">
+        <div
+          onClick={() => onClick(article)}
+          className="font-semibold text-lg leading-tight mb-1 line-clamp-2 text-primary"
+        >
           {article.title}
         </div>
-        <div className="text-sm text-muted-foreground mb-2 text-secondary flex gap-1.5">
+        <div
+          onClick={() => onClick(article)}
+          className="text-sm mb-2 text-secondary flex flex-wrap gap-x-1.5 gap-y-1 cursor-pointer"
+        >
           <div>By</div>
           <div className="font-medium">{article.source_name}</div>
           <div>on {dateFormat(article.pubDate)}</div>
         </div>
+
         <div className="flex items-center gap-3 mt-2">
           {isLiked ? (
             <HeartFilled
