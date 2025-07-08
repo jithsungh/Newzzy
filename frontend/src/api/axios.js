@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: "http://localhost:5433/api",
+  baseURL: "https://newzzy-ynxa.onrender.com/api",
   timeout: 15000,
   withCredentials: true,
   headers: {
