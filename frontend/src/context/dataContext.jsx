@@ -199,7 +199,7 @@ export const DataProvider = ({ children }) => {
   const fetchRecommendations = async () => {
     try {
       const result = await getRecommendations();
-      if (result.success && result.recommendations.length > 0 ) {
+      if (result.success && result.recommendations.length > 0) {
         setRecommendations(result.recommendations || []);
         return { success: true };
       } else if (result.needsPreferences) {
@@ -215,9 +215,9 @@ export const DataProvider = ({ children }) => {
         };
       } else {
         setRecommendations([]);
-        console.error("No recommendations found or error:", result.error);
+        console.error("No recommendations found or error:", result);
         toast.error(result.error || "Failed to fetch recommendations");
-        
+
         return { success: false, error: result.error };
       }
     } catch (error) {
