@@ -31,7 +31,7 @@ const getRecommendations = async () => {
     console.error("Error fetching recommendations:", error);
 
     // Handle insufficient interests case (403 or 404 status)
-    if (error.response?.status === 403 || error.response?.status === 404) {
+    if (error.status === 403 || error.status === 404) {
       // Don't show error toast for this case, it will be handled by the calling component
       return {
         success: false,
