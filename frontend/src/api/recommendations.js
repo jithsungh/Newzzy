@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 const getRecommendations = async () => {
   try {
     const response = await api.get("/recommendations/get");
+    console.log("Response from getRecommendations:", response);
     if (response.status === 200) {
       // Only show success toast if we actually have recommendations
       if (
