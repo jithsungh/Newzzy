@@ -13,9 +13,9 @@ const app = express();
 // app.use(cookieParser());
 connectDB()
   .then(() => {
-    app.listen(process.env.port, () => {
-      console.log(`Server is running on port ${process.env.port}`);
-      console.log(`http://localhost:${process.env.port}/`);
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
+      console.log(`http://localhost:${process.env.PORT}/`);
       require("./src/controllers/newsfetcher.js");
     });
   })
