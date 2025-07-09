@@ -53,11 +53,22 @@ const Navbar = () => {
     <nav className="bg-neutral shadow-lg w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          { isDarkMode ? (
-            <img src="/Newzzy-logo-dark.png" alt="Newzzy Logo" className="h-10" />
-          ) : (
-            <img src="/Newzzy-logo-light.png" alt="Newzzy Logo" className="h-10" />
-          )}
+          <Link to="/" className="flex items-center space-x-2">
+            {isDarkMode ? (
+              <img
+                src="/Newzzy-logo-dark.png"
+                alt="Newzzy Logo"
+                className="h-10"
+              />
+            ) : (
+              <img
+                src="/Newzzy-logo-light.png"
+                alt="Newzzy Logo"
+                className="h-10"
+              />
+            )}
+          </Link>
+
           {/* Logo
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
