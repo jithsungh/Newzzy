@@ -11,8 +11,12 @@ import { RefreshCcw } from "lucide-react";
 import useDataContext from "../hooks/useDataContext";
 
 const HomePage = () => {
-  const { recommendations, fetchRecommendations, handleRefresh } =
-    useDataContext();
+  const {
+    recommendations,
+    setRecommendations,
+    fetchRecommendations,
+    handleRefresh,
+  } = useDataContext();
   const { user, setLogout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -30,6 +34,8 @@ const HomePage = () => {
     return <Navigate to="/login" />;
   }
 
+  
+
   const checkAndFetchRecommendations = async () => {
     if (isLoading) return; // Prevent multiple simultaneous calls
 
@@ -41,6 +47,7 @@ const HomePage = () => {
         toast.error(
           "Please set your interests to get personalized recommendations"
         );
+        setRecommendations([]);
         navigate("/preferences", {
           state: {
             fromHome: true,
@@ -54,6 +61,15 @@ const HomePage = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log("HomePage useEffect - checking recommendations");
+    console.log("Current recommendations:", recommendations);
+    setRecommendations(recommendations || []); 
+    if (!recommendations || recommendations.length === 0) {
+      checkAndFetchRecommendations();
+    }
+  }, []);
 
   const handleOnClick = (article) => {
     const index = recommendations.findIndex((a) => a._id === article._id);
@@ -75,12 +91,6 @@ const HomePage = () => {
       setCurrentArticleIndex((prevIndex) => prevIndex - 1);
     }
   };
-
-  useEffect(() => {
-    if (recommendations.length === 0) {
-      checkAndFetchRecommendations();
-    }
-  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-8 pt-10">

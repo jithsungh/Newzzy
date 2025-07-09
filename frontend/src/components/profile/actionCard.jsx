@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const ActionCard = () => {
   const { user, setLogin, setLogout } = useAuth();
+  const { setRecommendations } = useDataContext();
   const navigate = useNavigate();
 
   const handleResetInterests = async () => {
@@ -23,6 +24,7 @@ const ActionCard = () => {
 
       if (response.success) {
         toast.success("Interests reset successfully!");
+        setRecommendations([]);
         navigate("/preferences", { state: { fromReset: true } });
       } else {
         toast.error("Failed to reset interests. Please try again.");

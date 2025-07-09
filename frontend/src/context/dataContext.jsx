@@ -204,16 +204,20 @@ export const DataProvider = ({ children }) => {
         return { success: true };
       } else if (result.needsPreferences) {
         // User needs to set preferences - don't show error toast, let the calling component handle it
-        
+        toast.error("Please set your preferences to get recommendations.");
+        console.warn("User needs to set preferences:", result);
+        // setRecommendations([]);
+        // navigate("/preferences", { state: { fromReset: true } });
         return {
           success: false,
           needsPreferences: true,
           interestCount: result.interestCount,
         };
       } else {
-        toast.error(result.error || "Failed to fetch recommendations");
         setRecommendations([]);
-        navigate("/preferences", { state: { fromReset: true } });
+        console.error("No recommendations found or error:", result.error);
+        toast.error(result.error || "Failed to fetch recommendations");
+        
         return { success: false, error: result.error };
       }
     } catch (error) {
