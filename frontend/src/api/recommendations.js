@@ -7,15 +7,25 @@ const getRecommendations = async () => {
     console.log("Response from getRecommendations:", response);
     if (response.status === 200) {
       // Only show success toast if we actually have recommendations
+      const { AccessToken } = response.data;
+
+      localStorage.setItem("AccessToken", AccessToken);
       if (
         response.data.recommendations &&
         response.data.recommendations.length > 0
       ) {
         toast.success("Recommendations fetched successfully!");
+      } else {
+        return {
+          success: false,
+          needsPreferences: true,
+          error: error.response.data.error || "User needs to set preferences",
+          message:
+            error.response.data.message ||
+            "Please set your interests to get personalized recommendations",
+          interestCount: error.response.data.interestCount || 0,
+        };
       }
-      const { AccessToken } = response.data;
-
-      localStorage.setItem("AccessToken", AccessToken);
       const recommendations = response.data.recommendations.map((rec) => ({
         _id: rec._id,
         score: rec.score,
@@ -32,7 +42,7 @@ const getRecommendations = async () => {
     console.error("Error fetching recommendations:", error);
 
     // Handle insufficient interests case (403 or 404 status)
-    if (error.status === 403 || error.status === 404) {
+    if (error.response.status === 403 || error.response.status === 404) {
       // Don't show error toast for this case, it will be handled by the calling component
       return {
         success: false,
