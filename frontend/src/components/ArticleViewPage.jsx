@@ -9,10 +9,12 @@ import {
   User,
   Globe,
 } from "lucide-react";
-import useDataContext from "../hooks/useDataContext"; 
+import useDataContext from "../hooks/useDataContext";
 
 const Badge = ({ children, className }) => (
-  <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${className}`}>
+  <span
+    className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${className}`}
+  >
     {children}
   </span>
 );
@@ -37,7 +39,15 @@ const dateFormat = (dateString) => {
 
 const ArticleViewPage = ({ article }) => {
   if (!article) return null;
-  const { handleLike, handleDislike, handleSave,handleShareArticle,likedArticleIds,dislikedArticleIds,savedArticleIds } = useDataContext();
+  const {
+    handleLike,
+    handleDislike,
+    handleSave,
+    handleShareArticle,
+    likedArticleIds,
+    dislikedArticleIds,
+    savedArticleIds,
+  } = useDataContext();
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
@@ -48,9 +58,11 @@ const ArticleViewPage = ({ article }) => {
         {/* Header */}
         <div className="flex flex-col md:flex-row gap-6">
           <div className="md:w-2/3 space-y-4">
-            <h1 className="text-4xl font-bold leading-tight">{article.title}</h1>
+            <h1 className="text-4xl font-bold leading-tight">
+              {article.title}
+            </h1>
             <div className="text-sm text-secondary">
-              By {article.creator} · {dateFormat(article.pubDate)}
+              By {article.source_name} · {dateFormat(article.pubDate)}
             </div>
             <img
               src={article.image_url}
@@ -76,7 +88,9 @@ const ArticleViewPage = ({ article }) => {
                   loading="eager"
                 />
                 <div>
-                  <div className="font-medium text-sm">{article.source_name}</div>
+                  <div className="font-medium text-sm">
+                    {article.source_name}
+                  </div>
                   <a
                     href={article.source_url}
                     target="_blank"
@@ -101,57 +115,57 @@ const ArticleViewPage = ({ article }) => {
             <div className="space-y-3">
               <h2 className="text-lg font-semibold">Actions</h2>
               <div className="grid grid-cols-2 gap-3">
-              {isLiked ? (
-                    <Button
-                      onClick={() => handleLike(article._id)}
-                      className="bg-red-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
-                    >
-                      <Heart size={16} /> Liked
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleLike(article._id)}
-                      className="bg-base-100 text-red-500 flex items-center gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
-                    >
-                      <Heart size={16} /> Like
-                    </Button>
-                  )}
-                  {isDisliked ? (
-                    <Button
-                      onClick={() => handleDislike(article._id)}
-                      className="bg-gray-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
-                    >
-                      <ThumbsDown size={16} /> Disliked
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleDislike(article._id)}
-                      className="bg-base-100 text-gray-500 flex items-center gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
-                    >
-                      <ThumbsDown size={16} /> Dislike
-                    </Button>
-                  )}
-                  {isSaved ? (
-                    <Button
-                      onClick={() => handleSave(article._id)}
-                      className="bg-blue-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
-                    >
-                      <Bookmark size={16} /> Saved
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleSave(article._id)}
-                      className="bg-base-100 text-blue-500 flex items-center gap-2 hover:bg-blue-500 hover:text-white active:scale-[0.98]"
-                    >
-                      <Bookmark size={16} /> Save
-                    </Button>
-                  )}
+                {isLiked ? (
                   <Button
-                    onClick={() => handleShareArticle(article)}
-                    className="border bg-base-100 text-green-500 flex items-center gap-2 hover:bg-green-500 hover:text-white active:scale-[0.98]"
+                    onClick={() => handleLike(article._id)}
+                    className="bg-red-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
                   >
-                    <Share size={16} /> Share
+                    <Heart size={16} /> Liked
                   </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleLike(article._id)}
+                    className="bg-base-100 text-red-500 flex items-center gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
+                  >
+                    <Heart size={16} /> Like
+                  </Button>
+                )}
+                {isDisliked ? (
+                  <Button
+                    onClick={() => handleDislike(article._id)}
+                    className="bg-gray-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
+                  >
+                    <ThumbsDown size={16} /> Disliked
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleDislike(article._id)}
+                    className="bg-base-100 text-gray-500 flex items-center gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
+                  >
+                    <ThumbsDown size={16} /> Dislike
+                  </Button>
+                )}
+                {isSaved ? (
+                  <Button
+                    onClick={() => handleSave(article._id)}
+                    className="bg-blue-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
+                  >
+                    <Bookmark size={16} /> Saved
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleSave(article._id)}
+                    className="bg-base-100 text-blue-500 flex items-center gap-2 hover:bg-blue-500 hover:text-white active:scale-[0.98]"
+                  >
+                    <Bookmark size={16} /> Save
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleShareArticle(article)}
+                  className="border bg-base-100 text-green-500 flex items-center gap-2 hover:bg-green-500 hover:text-white active:scale-[0.98]"
+                >
+                  <Share size={16} /> Share
+                </Button>
               </div>
             </div>
 
@@ -165,7 +179,8 @@ const ArticleViewPage = ({ article }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar size={14} className="text-secondary" />
-                  <span className="font-medium">Published:</span> {dateFormat(article.pubDate)}
+                  <span className="font-medium">Published:</span>{" "}
+                  {dateFormat(article.pubDate)}
                 </div>
               </div>
             </div>
