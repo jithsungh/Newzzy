@@ -62,7 +62,7 @@ const ArticleViewPage = ({ article }) => {
               {article.title}
             </h1>
             <div className="text-sm text-secondary">
-              By {article.source_name} · {dateFormat(article.pubDate)}
+              By {article.creator} · {dateFormat(article.pubDate)}
             </div>
             <img
               src={article.image_url}
