@@ -19,11 +19,9 @@ const getRecommendations = async () => {
         return {
           success: false,
           needsPreferences: true,
-          error: error.response.data.error || "User needs to set preferences",
           message:
-            error.response.data.message ||
             "Please set your interests to get personalized recommendations",
-          interestCount: error.response.data.interestCount || 0,
+          interestCount: response.data.interestCount || 0,
         };
       }
       const recommendations = response.data.recommendations.map((rec) => ({
