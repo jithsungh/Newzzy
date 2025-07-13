@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
 require("dotenv").config();
-const connectDB = require("../config/mongo");
+const mongoose = require("mongoose");
+const connectDB = require("./src/config/mongo");
 
 // Import models to ensure they're registered
-const User = require("../models/users");
-const NewsArticle = require("../models/newsArticles");
-const UserInteraction = require("../models/userInteractions");
-const Recommendation = require("../models/recommendations");
-const DeletedUser = require("../models/deletedUsers");
+const User = require("./src/models/users");
+const NewsArticle = require("./src/models/newsArticles");
+const UserInteraction = require("./src/models/userInteractions");
+const Recommendation = require("./src/models/recommendations");
+const DeletedUser = require("./src/models/deletedUsers");
 
 /**
  * MongoDB Index Creation Script for Newzzy Application - Robust Version
@@ -78,35 +78,34 @@ const createCoreIndexes = async () => {
         collection: NewsArticle.collection,
         name: "NewsArticles",
         indexes: [
+          // Note: article_id unique index is already defined in schema
+          // Note: Most other indexes are already defined in schema
+          // Only adding/updating indexes that need pubDate instead of createdAt
+
+          // Drop and recreate indexes that should use pubDate for sorting
           {
-            spec: { article_id: 1 },
-            options: { unique: true, name: "articles_article_id_unique" },
-          },
-          { spec: { createdAt: -1 }, options: { name: "articles_latest" } },
-          {
-            spec: { likes: -1, createdAt: -1 },
-            options: { name: "articles_trending" },
-          },
-          {
-            spec: { keywords: 1, createdAt: -1 },
-            options: { name: "articles_keywords_date" },
+            spec: { likes: -1, pubDate: -1 },
+            options: { name: "articles_trending_pubdate" },
           },
           {
-            spec: { category: 1, createdAt: -1 },
-            options: { name: "articles_category_date" },
+            spec: { keywords: 1, pubDate: -1 },
+            options: { name: "articles_keywords_pubdate" },
           },
           {
-            spec: { source_id: 1, createdAt: -1 },
-            options: { name: "articles_source_date" },
-          },
-          { spec: { pubDate: -1 }, options: { name: "articles_pub_date" } },
-          {
-            spec: { country: 1, createdAt: -1 },
-            options: { name: "articles_country_date" },
+            spec: { category: 1, pubDate: -1 },
+            options: { name: "articles_category_pubdate" },
           },
           {
-            spec: { language: 1, createdAt: -1 },
-            options: { name: "articles_language_date" },
+            spec: { source_id: 1, pubDate: -1 },
+            options: { name: "articles_source_pubdate" },
+          },
+          {
+            spec: { country: 1, pubDate: -1 },
+            options: { name: "articles_country_pubdate" },
+          },
+          {
+            spec: { language: 1, pubDate: -1 },
+            options: { name: "articles_language_pubdate" },
           },
         ],
       },
@@ -152,11 +151,8 @@ const createCoreIndexes = async () => {
         collection: DeletedUser.collection,
         name: "DeletedUsers",
         indexes: [
-          { spec: { email: 1 }, options: { name: "deleted_users_email" } },
-          {
-            spec: { deletedAt: 1 },
-            options: { name: "deleted_users_deletion_date" },
-          },
+          // Note: email and deletedAt indexes are already defined in schema
+          // No additional indexes needed at this time
         ],
       },
     ];
@@ -196,7 +192,12 @@ const createCoreIndexes = async () => {
 const main = async () => {
   try {
     // Connect to MongoDB
-    await connectDB();
+    await connectDB()
+      .then(() => console.log("✅ MongoDB Connected Successfully"))
+      .catch((error) => {
+        console.error("❌ MongoDB Connection Failed:", error);
+        process.exit(1);
+      });
     console.log("🔗 Connected to MongoDB\n");
 
     // Create all indexes

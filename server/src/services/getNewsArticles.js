@@ -8,7 +8,7 @@ const getLatestNewsArticles = async (n=1000) => {
   // get the latest n news articles
   try {
     const latestNewsArticles = await NewsArticle.find({})
-      .sort({ createdAt: -1 })
+      .sort({ pubDate: -1 })
       .limit(n)
       .exec();
     

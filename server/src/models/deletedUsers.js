@@ -45,10 +45,8 @@ const deletedUserSchema = new mongoose.Schema(
 // Index for email lookups (to prevent re-registration)
 deletedUserSchema.index({ email: 1 });
 
-// Index for cleanup operations based on deletion date
-deletedUserSchema.index({ deletedAt: 1 });
-
 // TTL index for automatic cleanup after certain period (e.g., 2 years)
+// This also serves as the deletedAt index for queries
 deletedUserSchema.index(
   { deletedAt: 1 },
   { expireAfterSeconds: 63072000 } // 2 years in seconds

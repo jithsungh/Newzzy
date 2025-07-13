@@ -5,7 +5,7 @@ const addLatestCorpus = async (tfidf) => {
     try{
     // add latest 1000 articles to corpus
     // Get the latest 1000 articles from the database
-        const latestArticles = await NewsArticle.find().sort({createdAt: -1 }).limit(1000);
+        const latestArticles = await NewsArticle.find().sort({pubDate: -1 }).limit(1000);
         latestArticles.forEach(article => {
             // Preprocess the article content
             const preprocessedContent = article.preprocessedContent ||preprocessArticle(article);

@@ -161,7 +161,7 @@ const getLatestTrendingArticles = async (req, res) => {
       } | Step 1: Fetching trending articles (sorted by likes)`
     );
     const articles = await NewsArticle.find()
-      .sort({ likes: -1, createdAt: -1 })
+      .sort({ likes: -1, pubDate: -1 })
       .limit(200);
 
     console.log(
@@ -235,7 +235,7 @@ const getArticleByKeyword = async (req, res) => {
       } | Step 2: Fetching articles with keyword: ${keyword}`
     );
     const articles = await NewsArticle.find({ keywords: keyword }).sort({
-      createdAt: -1,
+      pubDate: -1,
     });
 
     if (articles.length === 0) {

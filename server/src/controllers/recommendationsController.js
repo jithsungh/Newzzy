@@ -81,9 +81,9 @@ const getRecommendations = async (req, res) => {
       status: "new",
     })
       .populate("article_id")
-      .sort({ score: -1, createdAt: -1 }) // Sort by score first, then by creation date
+      .sort({ score: -1, pubDate: -1 }) // Sort by score first, then by publication date
       .limit(200)
-      .hint({ user_id: 1, status: 1, score: -1, createdAt: -1 }) // Use the compound index
+      .hint({ user_id: 1, status: 1, score: -1, pubDate: -1 }) // Use the compound index
       .exec();
 
     console.log(
