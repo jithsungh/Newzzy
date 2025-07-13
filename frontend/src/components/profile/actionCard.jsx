@@ -1,30 +1,32 @@
-import React from "react";
-import { RefreshCcw, Trash2Icon } from "lucide-react";
+import React, { useState } from "react";
+import { RefreshCcw, Trash2Icon, RotateCcw, UserX } from "lucide-react";
 import { useAuth } from "../../context/authContext";
 import useDataContext from "../../hooks/useDataContext";
 import { resetInterests, deleteAccount } from "../../api/profile";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "../ui/ConfirmationModal";
+import CriticalActionModal from "../ui/CriticalActionModal";
 
 const ActionCard = () => {
   const { user, setLogin, setLogout } = useAuth();
   const { setRecommendations } = useDataContext();
   const navigate = useNavigate();
+  
+  // Modal states
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleResetInterests = async () => {
+    setIsLoading(true);
     try {
-      const confirmReset = window.confirm(
-        "Are you sure you want to reset all your interests? This will clear your current preferences and you'll need to set them up again."
-      );
-      if (!confirmReset) return;
-
-      const loadingToast = toast.loading("Resetting interests...");
       const response = await resetInterests(setLogin);
-      toast.dismiss(loadingToast);
 
       if (response.success) {
         toast.success("Interests reset successfully!");
         setRecommendations([]);
+        setShowResetModal(false);
         navigate("/preferences", { state: { fromReset: true } });
       } else {
         toast.error("Failed to reset interests. Please try again.");
@@ -32,55 +34,90 @@ const ActionCard = () => {
     } catch (error) {
       console.error("Error resetting interests:", error);
       toast.error("Failed to reset interests. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (password = null) => {
+    setIsLoading(true);
     try {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data."
-      );
-      if (!confirmDelete) return;
-
-      const loadingToast = toast.loading("Deleting account...");
       const response = await deleteAccount(setLogout);
-      toast.dismiss(loadingToast);
 
       if (response.success) {
         toast.success("Account deleted successfully!");
+        setShowDeleteModal(false);
+        // The setLogout will redirect the user to login page
       } else {
         toast.error("Failed to delete account. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting account:", error);
       toast.error("Failed to delete account. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="rounded-lg border bg-neutral shadow-sm">
-      <div className="flex flex-col space-y-1.5 p-6">
-        <h3 className="text-2xl font-semibold leading-none tracking-tight">
-          Account Actions
-        </h3>
+    <>
+      <div className="rounded-lg border bg-neutral shadow-sm">
+        <div className="flex flex-col space-y-1.5 p-6">
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">
+            Account Actions
+          </h3>
+          <p className="text-sm text-base-content/70">
+            Manage your account preferences and data
+          </p>
+        </div>
+        <div className="p-6 pt-0 space-y-3">
+          <button
+            onClick={() => setShowResetModal(true)}
+            className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2 group hover:border-warning/50 hover:shadow-md hover:scale-105 active:scale-95"
+          >
+            <RotateCcw className="text-warning group-hover:text-warning-focus transition-all duration-200 group-hover:rotate-180" />
+            <span className="group-hover:font-semibold transition-all duration-200">Reset All Interests</span>
+          </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2 group hover:border-error/50 hover:shadow-md hover:scale-105 active:scale-95"
+          >
+            <UserX className="text-error group-hover:text-error-focus transition-all duration-200 group-hover:scale-110" />
+            <span className="group-hover:font-semibold transition-all duration-200">Delete Account</span>
+          </button>
+        </div>
       </div>
-      <div className="p-6 pt-0 space-y-3">
-        <button
-          onClick={handleResetInterests}
-          className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2"
-        >
-          <RefreshCcw className="text-orange-700" />
-          <span>Reset All Interests</span>
-        </button>
-        <button
-          onClick={handleDeleteAccount}
-          className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2"
-        >
-          <Trash2Icon className="text-red-500" />
-          <span>Delete Account</span>
-        </button>
-      </div>
-    </div>
+
+      {/* Reset Interests Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={handleResetInterests}
+        title="Reset Interests"
+        description="Are you sure you want to reset all your interests? This will clear your current preferences and redirect you to set them up again."
+        confirmText="Reset Interests"
+        cancelText="Keep Current"
+        type="warning"
+        icon={RotateCcw}
+        isLoading={isLoading}
+        details="You will be redirected to the preferences page to select new interests after confirmation."
+      />
+
+      {/* Delete Account Confirmation Modal */}
+      <CriticalActionModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+        title="Delete Account"
+        description="You are about to permanently delete your Newzzy account. This action will completely remove all your data and cannot be reversed."
+        confirmText="Delete My Account"
+        cancelText="Cancel"
+        isLoading={isLoading}
+        requirePasswordConfirmation={false}
+        expectedConfirmText="DELETE"
+        userEmail={user?.email || ""}
+      />
+    </>
   );
 };
 
