@@ -165,7 +165,7 @@ function ExplorePage() {
               </button>
             ))}
           </div>
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="horizontal"/>
         </ScrollArea>
       </div>
 

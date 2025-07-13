@@ -43,7 +43,15 @@ const dateFormat = (dateString) => {
   return `${day} ${month} ${year}`;
 };
 
-const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendation }) => { // add it here
+const ArticlePopup = ({
+  isOpen,
+  onClose,
+  article,
+  onPrev,
+  onNext,
+  isRecommendation,
+}) => {
+  // add it here
   if (!article) return null;
   const popupRef = useRef(null);
 
@@ -56,7 +64,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
     dislikedArticleIds,
     savedArticleIds,
     handleMarkAsRead,
-  } = useDataContext(); 
+  } = useDataContext();
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
@@ -64,12 +72,12 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
   const image_url =
     article.image_url ||
     "https://res.cloudinary.com/dp1acglry/image/upload/v1750067412/news-1172463_1280_djpiev.jpg";
-  
+
   useEffect(() => {
-      if (isRecommendation) {
-        handleMarkAsRead(article._id);
-      }
-  },[]);
+    if (isRecommendation) {
+      handleMarkAsRead(article._id);
+    }
+  }, []);
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -79,6 +87,51 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [onClose]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!isOpen) return;
+
+      switch (event.key) {
+        case "ArrowLeft":
+          event.preventDefault();
+          if (onPrev) onPrev();
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          if (onNext) onNext();
+          break;
+        case "1":
+          event.preventDefault();
+          if (handleLike) handleLike(article);
+          break;
+        case "2":
+          event.preventDefault();
+          if (handleDislike) handleDislike(article);
+          break;
+        case "3":
+          event.preventDefault();
+          if (handleSave) handleSave(article._id);
+          break;
+        case "4":
+          event.preventDefault();
+          if (handleShareArticle) handleShareArticle(article);
+          break;
+        case "Escape":
+          event.preventDefault();
+          onClose();
+          break;
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onPrev, onNext, onClose]);
 
   return (
     <Dialog open={isOpen}>
@@ -174,8 +227,10 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                     <HeartHandshake size={14} className="text-secondary" />
                     <span className="font-medium">Liked By:</span>{" "}
                     <span>{article.likes}</span>
-                    { article.likes == 0 && (
-                      <span className="text-secondary">Be the first to like this article</span>
+                    {article.likes == 0 && (
+                      <span className="text-secondary">
+                        Be the first to like this article
+                      </span>
                     )}
                   </div>
                 </div>
@@ -188,53 +243,74 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                   {isLiked ? (
                     <Button
                       onClick={() => handleLike(article)}
-                      className="bg-red-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
+                      className="bg-red-500 text-white flex justify-between items-baseline gap-2 hover:opacity-90 active:scale-[0.98]"
                     >
-                      <Heart size={16} /> Liked
+                      <span className="flex items-center gap-2">
+                        <Heart size={16} /> Liked
+                      </span>
+                      <span className="text-sm text-white">1</span>
                     </Button>
                   ) : (
                     <Button
                       onClick={() => handleLike(article)}
-                      className="bg-base-100 text-red-500 flex items-center gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
+                      className="bg-base-100 text-red-500 flex justify-between items-baseline gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
                     >
-                      <Heart size={16} /> Like
+                      <span className="flex items-center gap-2">
+                        <Heart size={16} /> Like
+                      </span>
+                      <span className="text-sm text-secondary">1</span>
                     </Button>
                   )}
                   {isDisliked ? (
                     <Button
                       onClick={() => handleDislike(article)}
-                      className="bg-gray-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
+                      className="bg-gray-500 text-white flex items-baseline justify-between gap-2 hover:opacity-90 active:scale-[0.98]"
                     >
-                      <ThumbsDown size={16} /> Disliked
+                      <span className="flex items-center gap-2">
+                        <ThumbsDown size={16} /> Disliked
+                      </span>
+                      <span className="text-sm text-white">2</span>
                     </Button>
                   ) : (
                     <Button
                       onClick={() => handleDislike(article)}
-                      className="bg-base-100 text-gray-500 flex items-center gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
+                      className="bg-base-100 text-gray-500 flex justify-between items-baseline gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
                     >
-                      <ThumbsDown size={16} /> Dislike
+                      <span className="flex items-center gap-2">
+                        <ThumbsDown size={16} /> Dislike
+                      </span>
+                      <span className="text-sm text-secondary">2</span>
                     </Button>
                   )}
                   {isSaved ? (
                     <Button
                       onClick={() => handleSave(article._id)}
-                      className="bg-blue-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
+                      className="bg-blue-500 text-white flex justify-between items-baseline gap-2 hover:opacity-90 active:scale-[0.98]"
                     >
-                      <Bookmark size={16} /> Saved
+                      <span className="flex items-center gap-2">
+                        <Bookmark size={16} /> Saved
+                      </span>
+                      <span className="text-sm text-white">3</span>
                     </Button>
                   ) : (
                     <Button
                       onClick={() => handleSave(article._id)}
-                      className="bg-base-100 text-blue-500 flex items-center gap-2 hover:bg-blue-500 hover:text-white active:scale-[0.98]"
+                      className="bg-base-100 text-blue-500 flex justify-between items-baseline gap-2 hover:bg-blue-500 hover:text-white active:scale-[0.98]"
                     >
-                      <Bookmark size={16} /> Save
+                      <span className="flex items-center gap-2">
+                        <Bookmark size={16} /> Save
+                      </span>
+                      <span className="text-sm text-secondary">3</span>
                     </Button>
                   )}
                   <Button
                     onClick={() => handleShareArticle(article)}
-                    className="border bg-base-100 text-green-500 flex items-center gap-2 hover:bg-green-500 hover:text-white active:scale-[0.98]"
+                    className="border bg-base-100 text-green-500 flex justify-between items-baseline gap-2 hover:bg-green-500 hover:text-white active:scale-[0.98]"
                   >
-                    <Share size={16} /> Share
+                    <span className="flex items-center gap-2">
+                      <Share size={16} /> Share
+                    </span>
+                    <span className="text-sm text-secondary">4</span>
                   </Button>
                 </div>
               </div>
@@ -258,14 +334,14 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                 <Button
                   onClick={onPrev}
                   disabled={!onPrev}
-                  className="flex-1 flex items-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed"
                 >
                   <ArrowLeft size={16} /> Previous
                 </Button>
                 <Button
                   onClick={onNext}
                   disabled={!onNext}
-                  className="flex-1 flex items-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed"
                 >
                   Next <ArrowRight size={16} />
                 </Button>
