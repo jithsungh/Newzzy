@@ -65,7 +65,7 @@ Built for developers, by developers – Newzzy showcases best practices in full-
 
 ### Frontend Technologies 🎨
 
-- ⚛️ **React 18** - Modern component-based UI library
+- ⚛️ **React** - Modern component-based UI library
 - ⚡ **Vite** - Next-generation frontend tooling for blazing fast development
 - 🎨 **Tailwind CSS** - Utility-first CSS framework for rapid UI development
 - 🌸 **DaisyUI** - Semantic component classes for Tailwind CSS
@@ -109,15 +109,15 @@ Built for developers, by developers – Newzzy showcases best practices in full-
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Server        │    │   Backend       │
-│   (React/Vite)  │◄──►│   (Auth/User)   │◄──►│   (News/API)    │
-│   Port: 3000    │    │   Port: 5000    │    │   Port: 8000    │
+│   Frontend      │    │   Server        │    │   NewsData.io   │
+│   (React/Vite)  │◄──►│   (Auth/User)   │    │   (External     │
+│   Port: 5173    │    │   Port: 5433    │    │      API)       │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Vercel CDN    │    │   MongoDB       │    │   NewsData.io   │
-│   (Global)      │    │   (Database)    │    │   (External)    │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐ 
+│   Vercel CDN    │    │   MongoDB       │◄──►│   (Server 1)    |
+│   (Global)      │    │   (Database)    │    │   (backend)     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -201,13 +201,6 @@ Built for developers, by developers – Newzzy showcases best practices in full-
 
    Create `.env` files in each directory with the following variables:
 
-   **Frontend (.env):**
-
-   ```env
-   VITE_API_URL=http://localhost:8000
-   VITE_SERVER_URL=http://localhost:5000
-   ```
-
    **Backend (.env):**
 
    ```env
@@ -224,7 +217,7 @@ Built for developers, by developers – Newzzy showcases best practices in full-
    ```env
    MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret_key
-   EMAIL_SERVICE_API_KEY=your_email_service_key
+   BREV_API_KEY=your_email_service_key
    ```
 
 4. **🔑 Get Your NewsData.io API Key:**
@@ -251,9 +244,9 @@ Built for developers, by developers – Newzzy showcases best practices in full-
    ```
 
 6. **🌐 Access the application:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - Server API: http://localhost:5000
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5432
+   - Server API: http://localhost:5433
 
 ### 🐳 Docker Setup (Optional)
 
@@ -281,7 +274,7 @@ docker-compose up --build
 │   ├── 📄 vite.config.js         # Vite configuration
 │   └── 📄 tailwind.config.js     # Tailwind CSS configuration
 │
-├── 📂 backend/                     # Main API backend
+├── 📂 backend/                     # NewsFetcher - fetches news from external API
 │   ├── 📂 src/
 │   │   ├── 📂 controllers/       # Business logic handlers
 │   │   ├── 📂 models/            # Database models (Mongoose)
@@ -292,7 +285,7 @@ docker-compose up --build
 │   ├── 📄 server.js              # Backend entry point
 │   └── 📄 package.json           # Backend dependencies
 │
-├── 📂 server/                      # Authentication & user management server
+├── 📂 server/                      # Main API backend - Authentication & user management server
 │   ├── 📂 src/
 │   │   ├── 📂 controllers/       # Auth controllers
 │   │   ├── 📂 middlewares/       # Authentication middlewares
@@ -424,7 +417,6 @@ docker-compose up --build
 #### Phase 2: Advanced Analytics & AI 🤖
 
 - [ ] 📊 **Advanced Analytics Dashboard** - User engagement metrics and reading pattern analysis
-- [ ] 🧠 **AI-Powered Recommendations** - Machine learning algorithms for better content suggestions
 - [ ] 🗣️ **Voice Search** - Speech-to-text search functionality
 - [ ] 🏷️ **Auto-Tagging System** - Automatic content categorization and tag generation
 
