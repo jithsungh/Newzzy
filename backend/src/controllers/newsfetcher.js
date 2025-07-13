@@ -14,27 +14,24 @@ const fetchAndStoreNews = async () => {
   try {
     console.log("📰 Fetching news articles...");
     const keywords = [
-      "politics",
-      "world",
-      "business",
       "technology",
-      "science",
+      "business",
+      "politics",
       "health",
+      "science",
       "sports",
       "entertainment",
+      "world",
       "finance",
-      "education",
-      "crime",
-      "climate change",
-      "economy",
-      "elections",
-      "covid-19",
+      "lifestyle",
       "travel",
-      "weather",
-      "startup",
-      "law",
-      "culture",
+      "food",
+      "environment",
+      "education",
+      "automotive",
     ];
+    
+
 
     console.log("Top keywords:", keywords);
     if (keywords.length === 0) {

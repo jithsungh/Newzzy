@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ArticleCard from "./articleCard";
-import ArticlePopup from "./articlePopup";
+import ArticleCard from "./ArticleCard";
+import ArticlePopup from "./ArticlePopup";
 // import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Search, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -12,7 +12,8 @@ const SearchResults = ({ searchQuery, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentArticleIndex, setCurrentArticleIndex] = useState(null);
 
-  const { fetchArticlesByKeyword, filteredArticles ,setFilteredArticles } = useDataContext();
+  const { fetchArticlesByKeyword, filteredArticles, setFilteredArticles } =
+    useDataContext();
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -47,7 +48,7 @@ const SearchResults = ({ searchQuery, onClose }) => {
   };
 
   if (!searchQuery.trim()) return null;
-  
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-8 py-8">
@@ -76,10 +77,10 @@ const SearchResults = ({ searchQuery, onClose }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredArticles.map((article) => (
                 <ArticleCard
-                onClick={handleOnClick}
-                key={article._id}
-                article={article}
-              />
+                  onClick={handleOnClick}
+                  key={article._id}
+                  article={article}
+                />
               ))}
             </div>
           </>
@@ -91,7 +92,8 @@ const SearchResults = ({ searchQuery, onClose }) => {
               No articles found for "{searchQuery}"
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Try searching for different keywords or browse our trending articles
+              Try searching for different keywords or browse our trending
+              articles
             </p>
             <Link
               to="/explore"
@@ -113,7 +115,7 @@ const SearchResults = ({ searchQuery, onClose }) => {
               ? handlePopupNext
               : null
           }
-          isRecommendation={false} 
+          isRecommendation={false}
         />
       )}
     </div>

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/authContext";
 import { Navigate } from "react-router-dom";
-import ProfileCard from "../components/profile/profileCard.jsx";
-import StatsCard from "../components/profile/statsCard.jsx";
-import ActionCard from "../components/profile/actionCard.jsx";
-import ArticleCard from "../components/articleCard";
-import ArticlePopup from "../components/articlePopup";
+import ProfileCard from "../components/profile/ProfileCard.jsx";
+import StatsCard from "../components/profile/StatsCard.jsx";
+import ActionCard from "../components/profile/ActionCard.jsx";
+import ArticleCard from "../components/ArticleCard";
+import ArticlePopup from "../components/ArticlePopup";
 import Activity from "../components/profile/Activity.jsx";
 
 import { Heart, Bookmark } from "lucide-react";
@@ -16,7 +16,12 @@ import useDataContext from "../hooks/useDataContext";
 const ProfilePage = () => {
   const { user, setLogout } = useAuth();
   const [activeTab, setActiveTab] = useState("SavedArticlesTab");
-  const { savedArticles, fetchSavedArticles, fetchRecentActivity, recentActivity } = useDataContext();
+  const {
+    savedArticles,
+    fetchSavedArticles,
+    fetchRecentActivity,
+    recentActivity,
+  } = useDataContext();
 
   React.useEffect(() => {
     fetchSavedArticles();
@@ -27,7 +32,6 @@ const ProfilePage = () => {
       fetchRecentActivity();
     }
   }, [activeTab]);
-
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
@@ -62,7 +66,6 @@ const ProfilePage = () => {
       setCurrentArticleIndex((prev) => prev - 1);
     }
   };
-
 
   if (!user) {
     return <Navigate to="/login" />;
@@ -124,29 +127,28 @@ const ProfilePage = () => {
                 <div className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 space-y-6">
                   <div className="rounded-lg border bg-neutral shadow-sm">
                     <div className="p-6 flex flex-col items-center justify-center py-12">
-                    {savedArticles.length === 0 ? (
-                      <div className="p-6 flex flex-col items-center justify-center py-12">
-                        <Bookmark className="w-10 h-10 text-secondary" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-400 mb-2">
-                          No saved articles yet
-                        </h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-center">
-                          Start saving articles you want to read later by clicking
-                          the save button on any article.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {savedArticles.map((article, index) => (
-                          <ArticleCard
-                            key={article._id}
-                            article={article.article_id}
-                            onClick={() => handlePopupOpen(index)}
-                          />
-                        ))}
-                      </div>
-                    )}
-
+                      {savedArticles.length === 0 ? (
+                        <div className="p-6 flex flex-col items-center justify-center py-12">
+                          <Bookmark className="w-10 h-10 text-secondary" />
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-400 mb-2">
+                            No saved articles yet
+                          </h3>
+                          <p className="text-gray-500 dark:text-gray-400 text-center">
+                            Start saving articles you want to read later by
+                            clicking the save button on any article.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {savedArticles.map((article, index) => (
+                            <ArticleCard
+                              key={article._id}
+                              article={article.article_id}
+                              onClick={() => handlePopupOpen(index)}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -173,10 +175,7 @@ const ProfilePage = () => {
                           </div>
                         ) : (
                           recentActivity.map((activity) => (
-                            <Activity
-                              key={activity._id}
-                              activity={activity}
-                            />
+                            <Activity key={activity._id} activity={activity} />
                           ))
                         )}
                       </div>
@@ -200,10 +199,9 @@ const ProfilePage = () => {
               ? handlePopupNext
               : null
           }
-          isRecommendation={false} 
+          isRecommendation={false}
         />
       )}
-
     </div>
   );
 };

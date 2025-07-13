@@ -8,12 +8,13 @@ import {
   Info,
 } from "lucide-react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toastManager } from "../utils/toastManager";
 import { signup, sendOTP, verifyOTP } from "../api/auth.js";
 import { useAuth } from "../context/authContext.jsx";
 import OTPVerification from "../components/OTPVerification.jsx";
 import PasswordValidatorPopup from "../components/PasswordValidatorPopup.jsx";
 import { validatePassword } from "../components/PasswordValidator.jsx";
+import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState("password");
@@ -55,7 +56,7 @@ const SignupPage = () => {
   const handleSignup = async () => {
     setLoading(true);
     if (!name || !email || !password || !confirmPassword) {
-      toast.error("All fields are required.");
+      toastManager.error("All fields are required.");
       setLoading(false);
       return;
     }
@@ -63,7 +64,7 @@ const SignupPage = () => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
+      toastManager.error("Please enter a valid email address.");
       setLoading(false);
       return;
     }
@@ -71,14 +72,14 @@ const SignupPage = () => {
     // Validate password strength
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      toast.error("Password does not meet all requirements.");
+      toastManager.error("Password does not meet all requirements.");
       setLoading(false);
       return;
     }
 
     // Check if passwords match
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toastManager.error("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -88,9 +89,9 @@ const SignupPage = () => {
     if (otpResult.success) {
       setOtpHash(otpResult.data.hash);
       setShowOTP(true);
-      toast.success("OTP sent to your email!");
+      toastManager.success("OTP sent to your email!");
     } else {
-      toast.error(otpResult.error || "Failed to send OTP");
+      toastManager.error(otpResult.error || "Failed to send OTP");
     }
     setLoading(false);
   };

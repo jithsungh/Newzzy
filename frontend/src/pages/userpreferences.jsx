@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 // import {
 //   Card,
@@ -20,7 +20,8 @@ import {
 import useDataContext from "../hooks/useDataContext";
 import { useAuth } from "../context/authContext";
 import { setInterests } from "../api/profile";
-import { toast } from "react-hot-toast";
+import { toastManager } from "../utils/toastManager";
+import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
 
 const newsCategories = [
   {
@@ -125,7 +126,7 @@ const UserPreferences = () => {
   const { user, setLogin } = useAuth();
   const location = useLocation();
 
-  if(!user) {
+  if (!user) {
     navigate("/login");
     return null; // Prevent rendering if user is not logged in
   }
@@ -185,7 +186,7 @@ const UserPreferences = () => {
 
   const handleSaveAndContinue = async () => {
     if (selectedCategories.length < 3) {
-      toast.error(
+      toastManager.error(
         "Please select at least 3 categories for better personalization."
       );
       return;
@@ -195,18 +196,18 @@ const UserPreferences = () => {
     try {
       const response = await setInterests(selectedCategories, setLogin);
       if (response.success) {
-        toast.success("Preferences saved successfully!");
+        toastManager.success("Preferences saved successfully!");
 
         // Navigate based on context
         const fromReset = location.state?.fromReset;
-        setRecommendations([]); 
+        setRecommendations([]);
         navigate("/home", { replace: true });
       } else {
-        toast.error("Failed to save preferences. Please try again.");
+        toastManager.error("Failed to save preferences. Please try again.");
       }
     } catch (error) {
       console.error("Error saving preferences:", error);
-      toast.error("An error occurred while saving preferences.");
+      toastManager.error("An error occurred while saving preferences.");
     } finally {
       setIsLoading(false);
     }

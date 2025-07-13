@@ -246,14 +246,14 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                 <Button
                   onClick={onPrev}
                   disabled={!onPrev}
-                  className="flex-1 flex items-center gap-2 border"
+                  className="flex-1 flex items-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed" 
                 >
                   <ArrowLeft size={16} /> Previous
                 </Button>
                 <Button
                   onClick={onNext}
                   disabled={!onNext}
-                  className="flex-1 flex items-center gap-2 border"
+                  className="flex-1 flex items-center gap-2 border hover:bg-primary hover:text-neutral active:scale-[0.98] disabled:opacity-10 disabled:cursor-not-allowed"
                 >
                   Next <ArrowRight size={16} />
                 </Button>

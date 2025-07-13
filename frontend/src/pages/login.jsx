@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Mail, Eye, EyeOff, CircleUserRound, LockKeyhole } from "lucide-react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toastManager } from "../utils/toastManager";
 import { login, verifyCredentialsAndSendOTP, verifyOTP } from "../api/auth.js";
 import { useAuth } from "../context/authContext.jsx";
 import OTPVerification from "../components/OTPVerification.jsx";
+import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState("password");
@@ -25,7 +26,7 @@ const LoginPage = () => {
   const handleLogin = async () => {
     setLoading(true);
     if (!email || !password) {
-      toast.error("All fields are required.");
+      toastManager.error("All fields are required.");
       setLoading(false);
       return;
     }
@@ -33,7 +34,7 @@ const LoginPage = () => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
+      toastManager.error("Please enter a valid email address.");
       setLoading(false);
       return;
     }
@@ -43,9 +44,9 @@ const LoginPage = () => {
     if (otpResult.success) {
       setOtpHash(otpResult.data.hash);
       setShowOTP(true);
-      toast.success("Credentials verified! OTP sent to your email.");
+      toastManager.success("Credentials verified! OTP sent to your email.");
     } else {
-      toast.error(otpResult.error || "Failed to verify credentials");
+      toastManager.error(otpResult.error || "Failed to verify credentials");
     }
     setLoading(false);
   };
@@ -56,19 +57,19 @@ const LoginPage = () => {
       // OTP verified, now proceed with login
       const result = await login({ email, password }, setLogin);
       if (result.success) {
-        toast.success("Login successful!");
+        toastManager.success("Login successful!");
         navigate("/home");
       } else {
-        toast.error(result.error || "Login failed");
+        toastManager.error(result.error || "Login failed");
         setShowOTP(false);
       }
     } else {
       if (verifyResult.attemptsLeft !== undefined) {
-        toast.error(
+        toastManager.error(
           `${verifyResult.error}. ${verifyResult.attemptsLeft} attempts left.`
         );
       } else {
-        toast.error(verifyResult.error || "OTP verification failed");
+        toastManager.error(verifyResult.error || "OTP verification failed");
         if (
           verifyResult.error?.includes("expired") ||
           verifyResult.error?.includes("Too many")
@@ -83,9 +84,9 @@ const LoginPage = () => {
     const otpResult = await verifyCredentialsAndSendOTP(email, password);
     if (otpResult.success) {
       setOtpHash(otpResult.data.hash);
-      toast.success("New OTP sent to your email!");
+      toastManager.success("New OTP sent to your email!");
     } else {
-      toast.error(otpResult.error || "Failed to resend OTP");
+      toastManager.error(otpResult.error || "Failed to resend OTP");
     }
   };
 

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
-import toast from "react-hot-toast";
-import ArticleCard from "../components/articleCard.jsx";
-import ArticlePopup from "../components/articlePopup.jsx";
+import { toastManager } from "../utils/toastManager";
+import ArticleCard from "../components/ArticleCard.jsx";
+import ArticlePopup from "../components/ArticlePopup.jsx";
 import { Button } from "../components/ui/button";
 import { RefreshCcw } from "lucide-react";
+import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
 
 import useDataContext from "../hooks/useDataContext";
 
@@ -34,8 +35,6 @@ const HomePage = () => {
     return <Navigate to="/login" />;
   }
 
-  
-
   const checkAndFetchRecommendations = async () => {
     if (isLoading) return; // Prevent multiple simultaneous calls
 
@@ -44,7 +43,7 @@ const HomePage = () => {
       const result = await fetchRecommendations();
       if (result && result.needsPreferences) {
         // User needs to set preferences
-        toast.error(
+        toastManager.error(
           "Please set your interests to get personalized recommendations"
         );
         setRecommendations([]);
@@ -65,7 +64,7 @@ const HomePage = () => {
   useEffect(() => {
     console.log("HomePage useEffect - checking recommendations");
     console.log("Current recommendations:", recommendations);
-    setRecommendations(recommendations || []); 
+    setRecommendations(recommendations || []);
     if (!recommendations || recommendations.length === 0) {
       checkAndFetchRecommendations();
     }
@@ -108,7 +107,7 @@ const HomePage = () => {
               const result = await handleRefresh();
               if (result && result.needsPreferences) {
                 // User needs to set preferences
-                toast.error(
+                toastManager.error(
                   result.message ||
                     "Please set your interests to get personalized recommendations"
                 );

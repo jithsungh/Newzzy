@@ -24,7 +24,7 @@ import {
   getRecentActivity,
   toggleTheme,
 } from "../api/profile";
-import { toast } from "react-hot-toast";
+import { toastManager } from "../utils/toastManager";
 import { useAuth } from "./authContext";
 import { useNavigate } from "react-router-dom";
 
@@ -228,11 +228,11 @@ export const DataProvider = ({ children }) => {
   };
 
   const handleRefresh = async () => {
-    const loadingId = toast.loading("Refreshing recommendations...");
+    const loadingId = toastManager.loading("Refreshing recommendations...");
     try {
       const refreshed = await refreshRecommendations();
       if (!refreshed.success) {
-        toast.dismiss(loadingId);
+        toastManager.dismiss(loadingId);
 
         if (refreshed.needsPreferences) {
           // User needs to set preferences
@@ -249,7 +249,7 @@ export const DataProvider = ({ children }) => {
 
       const recommendationsResult = await fetchRecommendations();
       if (recommendationsResult.needsPreferences) {
-        toast.dismiss(loadingId);
+        toastManager.dismiss(loadingId);
         return {
           success: false,
           needsPreferences: true,
@@ -257,14 +257,14 @@ export const DataProvider = ({ children }) => {
         };
       }
 
-      toast.success("Recommendations refreshed!");
+      toastManager.success("Recommendations refreshed!");
       return { success: true };
     } catch (err) {
-      toast.error("Something went wrong!");
+      toastManager.error("Something went wrong!");
       console.error(err);
       return { success: false, error: err.message };
     } finally {
-      toast.dismiss(loadingId);
+      toastManager.dismiss(loadingId);
     }
   };
 
@@ -305,7 +305,9 @@ export const DataProvider = ({ children }) => {
   };
 
   const fetchArticlesByKeyword = async (searchQuery) => {
-    const loadingId = toast.loading(`Fetching results for "${searchQuery}"`);
+    const loadingId = toastManager.loading(
+      `Fetching results for "${searchQuery}"`
+    );
     try {
       console.log("Fetching articles by keyword...,", searchQuery);
       const response = await getArticleByKeyword(searchQuery);
@@ -318,7 +320,7 @@ export const DataProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching articles by keyword : ", error);
     } finally {
-      toast.dismiss(loadingId);
+      toastManager.dismiss(loadingId);
     }
   };
 

@@ -3,10 +3,11 @@ import { RefreshCcw, Trash2Icon, RotateCcw, UserX } from "lucide-react";
 import { useAuth } from "../../context/authContext";
 import useDataContext from "../../hooks/useDataContext";
 import { resetInterests, deleteAccount } from "../../api/profile";
-import { toast } from "react-hot-toast";
+import { toastManager } from "../../utils/toastManager";
 import { useNavigate } from "react-router-dom";
 import ConfirmationModal from "../ui/ConfirmationModal";
 import CriticalActionModal from "../ui/CriticalActionModal";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 const ActionCard = () => {
   const { user, setLogin, setLogout } = useAuth();
@@ -24,16 +25,16 @@ const ActionCard = () => {
       const response = await resetInterests(setLogin);
 
       if (response.success) {
-        toast.success("Interests reset successfully!");
+        toastManager.success("Interests reset successfully!");
         setRecommendations([]);
         setShowResetModal(false);
         navigate("/preferences", { state: { fromReset: true } });
       } else {
-        toast.error("Failed to reset interests. Please try again.");
+        toastManager.error("Failed to reset interests. Please try again.");
       }
     } catch (error) {
       console.error("Error resetting interests:", error);
-      toast.error("Failed to reset interests. Please try again.");
+      toastManager.error("Failed to reset interests. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -45,15 +46,15 @@ const ActionCard = () => {
       const response = await deleteAccount(setLogout);
 
       if (response.success) {
-        toast.success("Account deleted successfully!");
+        toastManager.success("Account deleted successfully!");
         setShowDeleteModal(false);
         // The setLogout will redirect the user to login page
       } else {
-        toast.error("Failed to delete account. Please try again.");
+        toastManager.error("Failed to delete account. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      toast.error("Failed to delete account. Please try again.");
+      toastManager.error("Failed to delete account. Please try again.");
     } finally {
       setIsLoading(false);
     }
