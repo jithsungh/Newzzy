@@ -13,6 +13,8 @@ function checkKeyAvailability() {
   console.log("✅ NEWS_API_KEY2: Valid but rate limited");
   console.log("✅ NEWS_API_KEY3: Valid but rate limited");
   console.log("✅ NEWS_API_KEY4: Valid but rate limited");
+  console.log("✅ NEWS_API_KEY5: Valid but rate limited");
+  console.log("✅ NEWS_API_KEY6: Valid but rate limited");
 
   console.log("\n⏰ Estimated Reset Time:", resetTime.toLocaleString());
   console.log(
