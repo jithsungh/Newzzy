@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ArticleCard from "./ArticleCard";
-import ArticlePopup from "./ArticlePopup";
+import ArticleCard from "./articleCard";
+import ArticlePopup from "./articlePopup";
 // import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Search, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";

@@ -4,8 +4,8 @@ import { Navigate } from "react-router-dom";
 import ProfileCard from "../components/profile/profileCard.jsx";
 import StatsCard from "../components/profile/statsCard.jsx";
 import ActionCard from "../components/profile/actionCard.jsx";
-import ArticleCard from "../components/ArticleCard";
-import ArticlePopup from "../components/ArticlePopup.jsx";
+import ArticleCard from "../components/articleCard.jsx";
+import ArticlePopup from "../components/articlePopup.jsx";
 import Activity from "../components/profile/Activity.jsx";
 
 import { Heart, Bookmark } from "lucide-react";

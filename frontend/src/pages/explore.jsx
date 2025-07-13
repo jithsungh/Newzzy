@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/authContext";
 import { Navigate } from "react-router-dom";
-import ArticleCard from "../components/ArticleCard.jsx";
-import ArticlePopup from "../components/ArticlePopup";
+import ArticleCard from "../components/articleCard";
+import ArticlePopup from "../components/articlePopup";
 import {
   Card,
   CardContent,
