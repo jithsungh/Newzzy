@@ -44,4 +44,17 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Performance indexes for common query patterns
+// Unique index for email-based authentication
+userSchema.index({ email: 1 }, { unique: true });
+
+// Index for refresh token validation (sparse since not all users may have refresh tokens)
+userSchema.index({ REFRESH_TOKEN: 1 }, { sparse: true });
+
+// Index for user activity tracking and streak management
+userSchema.index({ lastActiveDate: -1, streak: -1 });
+
+// Index for theme-based queries (if needed for analytics)
+userSchema.index({ theme: 1 });
+
 module.exports = mongoose.model("User", userSchema);

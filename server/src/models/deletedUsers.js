@@ -11,9 +11,9 @@ const deletedUserSchema = new mongoose.Schema(
       required: true,
     },
     deletedAt: {
-        type: Date,
-        default: Date.now,
-        required: true
+      type: Date,
+      default: Date.now,
+      required: true,
     },
     password: {
       type: String,
@@ -39,6 +39,19 @@ const deletedUserSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
+);
+
+// Performance indexes for deleted users collection
+// Index for email lookups (to prevent re-registration)
+deletedUserSchema.index({ email: 1 });
+
+// Index for cleanup operations based on deletion date
+deletedUserSchema.index({ deletedAt: 1 });
+
+// TTL index for automatic cleanup after certain period (e.g., 2 years)
+deletedUserSchema.index(
+  { deletedAt: 1 },
+  { expireAfterSeconds: 63072000 } // 2 years in seconds
 );
 
 module.exports = mongoose.model("DeletedUser", deletedUserSchema);
