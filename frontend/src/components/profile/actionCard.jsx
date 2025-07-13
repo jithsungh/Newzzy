@@ -12,7 +12,7 @@ const ActionCard = () => {
   const { user, setLogin, setLogout } = useAuth();
   const { setRecommendations } = useDataContext();
   const navigate = useNavigate();
-  
+
   // Modal states
   const [showResetModal, setShowResetModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -76,14 +76,18 @@ const ActionCard = () => {
             className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2 group hover:border-warning/50 hover:shadow-md hover:scale-105 active:scale-95"
           >
             <RotateCcw className="text-warning group-hover:text-warning-focus transition-all duration-200 group-hover:rotate-180" />
-            <span className="group-hover:font-semibold transition-all duration-200">Reset All Interests</span>
+            <span className="group-hover:font-semibold transition-all duration-200">
+              Reset All Interests
+            </span>
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
             className="justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-base-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-base-100 h-10 px-4 py-2 w-full flex items-center space-x-2 group hover:border-error/50 hover:shadow-md hover:scale-105 active:scale-95"
           >
             <UserX className="text-error group-hover:text-error-focus transition-all duration-200 group-hover:scale-110" />
-            <span className="group-hover:font-semibold transition-all duration-200">Delete Account</span>
+            <span className="group-hover:font-semibold transition-all duration-200">
+              Delete Account
+            </span>
           </button>
         </div>
       </div>

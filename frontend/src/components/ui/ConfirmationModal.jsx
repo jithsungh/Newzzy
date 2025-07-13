@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { X, AlertTriangle, Trash2, RefreshCcw, Shield, CheckCircle } from "lucide-react";
+import {
+  X,
+  AlertTriangle,
+  Trash2,
+  RefreshCcw,
+  Shield,
+  CheckCircle,
+} from "lucide-react";
 
 const ConfirmationModal = ({
   isOpen,
@@ -90,22 +97,30 @@ const ConfirmationModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in-0"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-[90%] max-w-md bg-base-100 rounded-2xl shadow-2xl border border-neutral transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4">
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b border-neutral ${styles.headerBg} rounded-t-2xl`}>
+        <div
+          className={`flex items-center justify-between p-6 border-b border-neutral ${styles.headerBg} rounded-t-2xl`}
+        >
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${styles.iconBg} ${styles.borderColor} border transition-all duration-200 animate-pulse`}>
-              <IconComponent className={`w-6 h-6 ${styles.iconColor} animate-in zoom-in-50 duration-500`} />
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${styles.iconBg} ${styles.borderColor} border transition-all duration-200 animate-pulse`}
+            >
+              <IconComponent
+                className={`w-6 h-6 ${styles.iconColor} animate-in zoom-in-50 duration-500`}
+              />
             </div>
             <div className="animate-in slide-in-from-left-4 duration-500 delay-150">
               <h3 className="text-xl font-bold text-primary">{title}</h3>
-              <p className="text-sm text-base-content/60">Confirmation required</p>
+              <p className="text-sm text-base-content/60">
+                Confirmation required
+              </p>
             </div>
           </div>
           <button
@@ -122,14 +137,16 @@ const ConfirmationModal = ({
           <p className="text-base text-base-content/80 mb-4 leading-relaxed animate-in fade-in-0 duration-700 delay-400">
             {description}
           </p>
-          
+
           {details && (
-            <div className={`p-4 rounded-lg ${styles.iconBg} ${styles.borderColor} border mb-4 transition-all duration-200`}>
+            <div
+              className={`p-4 rounded-lg ${styles.iconBg} ${styles.borderColor} border mb-4 transition-all duration-200`}
+            >
               <div className="flex items-start gap-3">
-                <CheckCircle className={`w-5 h-5 ${styles.iconColor} mt-0.5 flex-shrink-0`} />
-                <div className="text-sm text-base-content/70">
-                  {details}
-                </div>
+                <CheckCircle
+                  className={`w-5 h-5 ${styles.iconColor} mt-0.5 flex-shrink-0`}
+                />
+                <div className="text-sm text-base-content/70">{details}</div>
               </div>
             </div>
           )}
@@ -170,7 +187,10 @@ const ConfirmationModal = ({
               <AlertTriangle className="w-5 h-5 text-error mt-0.5 flex-shrink-0" />
               <div className="text-sm text-error/80">
                 <p className="font-medium mb-1">This action cannot be undone</p>
-                <p>Please make sure you understand the consequences before proceeding.</p>
+                <p>
+                  Please make sure you understand the consequences before
+                  proceeding.
+                </p>
               </div>
             </div>
           </div>

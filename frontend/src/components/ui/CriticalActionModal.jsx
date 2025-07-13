@@ -43,7 +43,8 @@ const CriticalActionModal = ({
 
   const isConfirmationValid = () => {
     if (step === 1) return true;
-    if (expectedConfirmText && confirmationText !== expectedConfirmText) return false;
+    if (expectedConfirmText && confirmationText !== expectedConfirmText)
+      return false;
     if (requirePasswordConfirmation && !password) return false;
     return true;
   };
@@ -67,11 +68,11 @@ const CriticalActionModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in-0"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-[90%] max-w-lg bg-base-100 rounded-2xl shadow-2xl border border-error/20 transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4">
         {/* Header */}
@@ -103,15 +104,19 @@ const CriticalActionModal = ({
                 <p className="text-base text-base-content/80 leading-relaxed animate-in fade-in-0 duration-700 delay-400">
                   {description}
                 </p>
-                
+
                 <div className="p-4 rounded-lg bg-error/10 border border-error/20">
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-error mt-0.5 flex-shrink-0" />
                     <div className="text-sm text-error/80">
-                      <p className="font-medium mb-2">This action will permanently:</p>
+                      <p className="font-medium mb-2">
+                        This action will permanently:
+                      </p>
                       <ul className="list-disc list-inside space-y-1 text-error/70">
                         <li>Delete all your saved articles and preferences</li>
-                        <li>Remove your activity history and recommendations</li>
+                        <li>
+                          Remove your activity history and recommendations
+                        </li>
                         <li>Cancel any active subscriptions</li>
                         <li>Erase all personal data from our servers</li>
                       </ul>
@@ -123,7 +128,8 @@ const CriticalActionModal = ({
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0" />
                     <p className="text-sm text-warning/80">
-                      <strong>Important:</strong> This action cannot be undone. Please make sure you have backed up any important data.
+                      <strong>Important:</strong> This action cannot be undone.
+                      Please make sure you have backed up any important data.
                     </p>
                   </div>
                 </div>
@@ -134,13 +140,18 @@ const CriticalActionModal = ({
               {/* Step 2: Confirmation */}
               <div className="space-y-4">
                 <p className="text-base text-base-content/80 mb-4">
-                  To confirm account deletion, please complete the verification below:
+                  To confirm account deletion, please complete the verification
+                  below:
                 </p>
 
                 {expectedConfirmText && (
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-base-content/70">
-                      Type <span className="font-mono bg-neutral px-1 rounded text-error">{expectedConfirmText}</span> to confirm:
+                      Type{" "}
+                      <span className="font-mono bg-neutral px-1 rounded text-error">
+                        {expectedConfirmText}
+                      </span>{" "}
+                      to confirm:
                     </label>
                     <input
                       type="text"
@@ -172,7 +183,11 @@ const CriticalActionModal = ({
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/50 hover:text-base-content"
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -180,7 +195,8 @@ const CriticalActionModal = ({
 
                 <div className="p-3 rounded-lg bg-error/5 border border-error/10">
                   <p className="text-sm text-error/70">
-                    Account for <strong>{userEmail}</strong> will be permanently deleted.
+                    Account for <strong>{userEmail}</strong> will be permanently
+                    deleted.
                   </p>
                 </div>
               </div>
@@ -219,8 +235,16 @@ const CriticalActionModal = ({
         {/* Progress Indicator */}
         <div className="px-6 pb-4">
           <div className="flex gap-2">
-            <div className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= 1 ? 'bg-error' : 'bg-error/20'}`} />
-            <div className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= 2 ? 'bg-error' : 'bg-error/20'}`} />
+            <div
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                step >= 1 ? "bg-error" : "bg-error/20"
+              }`}
+            />
+            <div
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                step >= 2 ? "bg-error" : "bg-error/20"
+              }`}
+            />
           </div>
           <div className="flex justify-between mt-2 text-xs text-base-content/50">
             <span>Warning</span>
