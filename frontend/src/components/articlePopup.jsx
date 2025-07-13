@@ -87,7 +87,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
           className="relative bg-base-100 text-primary rounded-lg shadow-xl w-[90vw] max-w-5xl h-[90vh] md:h-[600px] flex flex-col md:flex-row overflow-hidden border border-neutral"
         >
           {/* Left Panel */}
-          <div className="w-1/2 h-full flex flex-col">
+          <div className="w-full md:w-1/2 h-full flex flex-col">
             <img
               src={image_url}
               alt={article.title}
@@ -106,7 +106,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
           </div>
 
           {/* Right Panel */}
-          <div className="w-1/2 h-full flex flex-col bg-neutral text-primary relative">
+          <div className="w-full md:w-1/2 h-full flex flex-col bg-neutral text-primary relative">
             <button
               onClick={onClose}
               className="absolute top-3 right-4 z-10 bg-base-100 p-1.5 rounded-full hover:bg-error/10 shadow"
