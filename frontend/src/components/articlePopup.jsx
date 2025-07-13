@@ -13,6 +13,7 @@ import {
   Calendar,
   User,
   Globe,
+  HeartHandshake,
 } from "lucide-react";
 
 import useDataContext from "../hooks/useDataContext";
@@ -158,7 +159,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
               {/* Article Details */}
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-3">Article Details</h3>
-                <div className="bg-base-100 rounded-lg p-4 space-y-3 border">
+                <div className="bg-base-100 rounded-lg p-4 space-y-2 border">
                   <div className="flex items-center gap-2 text-sm">
                     <User size={14} className="text-secondary" />
                     <span className="font-medium">Author:</span>{" "}
@@ -169,6 +170,14 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                     <span className="font-medium">Published:</span>{" "}
                     <span>{dateFormat(article.pubDate)}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <HeartHandshake size={14} className="text-secondary" />
+                    <span className="font-medium">Liked By:</span>{" "}
+                    <span>{article.likes}</span>
+                    { article.likes == 0 && (
+                      <span className="text-secondary">Be the first to like this article</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -178,14 +187,14 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                 <div className="grid grid-cols-2 gap-3">
                   {isLiked ? (
                     <Button
-                      onClick={() => handleLike(article._id)}
+                      onClick={() => handleLike(article)}
                       className="bg-red-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
                     >
                       <Heart size={16} /> Liked
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleLike(article._id)}
+                      onClick={() => handleLike(article)}
                       className="bg-base-100 text-red-500 flex items-center gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
                     >
                       <Heart size={16} /> Like
@@ -193,14 +202,14 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
                   )}
                   {isDisliked ? (
                     <Button
-                      onClick={() => handleDislike(article._id)}
+                      onClick={() => handleDislike(article)}
                       className="bg-gray-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
                     >
                       <ThumbsDown size={16} /> Disliked
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleDislike(article._id)}
+                      onClick={() => handleDislike(article)}
                       className="bg-base-100 text-gray-500 flex items-center gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
                     >
                       <ThumbsDown size={16} /> Dislike

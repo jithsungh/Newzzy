@@ -68,26 +68,37 @@ export const DataProvider = ({ children }) => {
     fetchUserData();
   }, [setLogin]);
 
-  const handleLike = async (id) => {
-    const isAlreadyLiked = likedArticleIds.includes(id);
+  const handleLike = async ( article) => {
+    const isAlreadyLiked = likedArticleIds.includes(article._id);
 
     // Optimistically update liked articles
     setLikedArticleIds((prev) =>
-      isAlreadyLiked ? prev.filter((aid) => aid !== id) : [...prev, id]
+      isAlreadyLiked ? prev.filter((aid) => aid !== article._id) : [...prev, article._id]
     );
 
     // Remove from disliked if newly liked
     if (!isAlreadyLiked) {
-      setDislikedArticleIds((prev) => prev.filter((aid) => aid !== id));
+      setDislikedArticleIds((prev) => prev.filter((aid) => aid !== article._id));
+      article.likes += 1;
+    }
+    else{
+      article.likes -= 1;
     }
 
     try {
-      const res = await likeArticle(id);
+      const res = await likeArticle(article._id);
+
       if (!res.success) {
         // Revert on failure
         setLikedArticleIds((prev) =>
-          isAlreadyLiked ? [...prev, id] : prev.filter((aid) => aid !== id)
+          isAlreadyLiked ? [...prev, article._id] : prev.filter((aid) => aid !== article._id)
         );
+        if (isAlreadyLiked) {
+          article.likes += 1; // Revert likes if we were previously liked
+        }
+        else{
+          article.likes -= 1; // Revert likes if we just liked
+        }
         toast.error(res.error || "Failed to update like status");
       } else {
         toast.success(isAlreadyLiked ? "Article Unliked!" : "Article Liked!");
@@ -98,26 +109,33 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  const handleDislike = async (id) => {
-    const isAlreadyDisliked = dislikedArticleIds.includes(id);
+  const handleDislike = async (article) => {
+    const isAlreadyDisliked = dislikedArticleIds.includes(article._id);
+    const isAlreadyLiked = likedArticleIds.includes(article._id);
 
     // Optimistically update disliked articles
     setDislikedArticleIds((prev) =>
-      isAlreadyDisliked ? prev.filter((aid) => aid !== id) : [...prev, id]
+      isAlreadyDisliked ? prev.filter((aid) => aid !== article._id) : [...prev, article._id]
     );
 
     // Remove from liked if newly disliked
     if (!isAlreadyDisliked) {
-      setLikedArticleIds((prev) => prev.filter((aid) => aid !== id));
+      setLikedArticleIds((prev) => prev.filter((aid) => aid !== article._id));
     }
-
+    if (isAlreadyLiked) {
+      article.likes -= 1; // Revert likes if we were previously liked
+    }
     try {
-      const res = await dislikeArticle(id);
+      const res = await dislikeArticle(article._id);
       if (!res.success) {
         // Revert on failure
         setDislikedArticleIds((prev) =>
-          isAlreadyDisliked ? [...prev, id] : prev.filter((aid) => aid !== id)
+          isAlreadyDisliked ? [...prev, article._id] : prev.filter((aid) => aid !== article._id)
         );
+        if (!isAlreadyDisliked) {
+          article.likes += 1; // Revert likes if we just disliked
+        }
+
         toast.error(res.error || "Failed to dislike article");
       } else {
         toast.success(

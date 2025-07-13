@@ -1,4 +1,7 @@
 const User = require("../models/users");
+const {
+  refetchRecommendations,
+} = require("../controllers/refreshRecommendations");
 
 const updateStreak = async (req, res, next) => {
   const logPrefix = "[STREAK_UPDATE]";
@@ -205,6 +208,58 @@ const updateStreak = async (req, res, next) => {
       action: streakAction,
       lastActiveDate: user.lastActiveDate.toISOString(),
     });
+
+    // Step 11: Refresh recommendations if user was last active yesterday or before
+    console.log(
+      `${logPrefix} User: ${userIdentifier} | Step 11: Checking if recommendations refresh is needed...`
+    );
+
+    const shouldRefreshRecommendations =
+      streakAction === "INCREMENT" || // User was active yesterday
+      streakAction === "RESET" || // User missed days
+      streakAction === "FIRST_TIME_OR_INVALID"; // First time user
+
+    if (shouldRefreshRecommendations) {
+      console.log(
+        `${logPrefix} User: ${userIdentifier} | Step 11: Refreshing recommendations (reason: ${streakAction})`
+      );
+
+      try {
+        // Refresh recommendations asynchronously to not block the response
+        refetchRecommendations(userId)
+          .then((result) => {
+            console.log(
+              `${logPrefix} User: ${userIdentifier} | Step 11 SUCCESS: Recommendations refreshed - ${result.topCount} new recommendations generated`
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `${logPrefix} User: ${userIdentifier} | Step 11 ERROR: Failed to refresh recommendations:`,
+              {
+                message: error.message,
+                stack: error.stack,
+              }
+            );
+          });
+
+        console.log(
+          `${logPrefix} User: ${userIdentifier} | Step 11: Recommendation refresh initiated (running asynchronously)`
+        );
+      } catch (error) {
+        console.error(
+          `${logPrefix} User: ${userIdentifier} | Step 11 ERROR: Error initiating recommendation refresh:`,
+          {
+            message: error.message,
+            stack: error.stack,
+          }
+        );
+      }
+    } else {
+      console.log(
+        `${logPrefix} User: ${userIdentifier} | Step 11 SKIP: No recommendation refresh needed (user already active today)`
+      );
+    }
+
     console.log(
       `${logPrefix} User: ${userIdentifier} | ==================== STREAK UPDATE COMPLETED ====================`
     );

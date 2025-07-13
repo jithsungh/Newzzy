@@ -262,10 +262,6 @@ function ExplorePage() {
                   onClick={handleOnClick}
                   key={article._id}
                   article={article}
-                  handleLike={handleLike}
-                  handleDislike={handleDislike}
-                  handleSave={handleSave}
-                  handleShare={handleShare}
                 />
               ))}
             </div>

@@ -62,24 +62,24 @@ const ArticleCard = ({ article, onClick }) => {
           {isLiked ? (
             <HeartFilled
               className="text-red-500 fill-red-500 cursor-pointer"
-              onClick={() => handleLike(article._id)}
+              onClick={() => handleLike(article)}
             />
           ) : (
             <Heart
               className="text-red-500 cursor-pointer hover:text-red-700 transition-colors"
-              onClick={() => handleLike(article._id)}
+              onClick={() => handleLike(article)}
             />
           )}
 
           {isDisliked ? (
             <ThumbsDownFilled
               className="text-gray-500 fill-gray-500 cursor-pointer"
-              onClick={() => handleDislike(article._id)}
+              onClick={() => handleDislike(article)}
             />
           ) : (
             <ThumbsDown
               className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
-              onClick={() => handleDislike(article._id)}
+              onClick={() => handleDislike(article)}
             />
           )}
 
@@ -99,6 +99,11 @@ const ArticleCard = ({ article, onClick }) => {
             className="text-green-500 cursor-pointer hover:text-green-700 transition-colors"
             onClick={() => handleShareArticle(article)}
           />
+          <div className="flex-1 text-right px-2">
+            <p className="text-md text-secondary">
+              Likes: <span className="font-bold text-primary">{article.likes}</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>

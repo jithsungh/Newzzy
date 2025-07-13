@@ -120,14 +120,14 @@ const ArticleViewPage = ({ article }) => {
               <div className="grid grid-cols-2 gap-3">
                 {isLiked ? (
                   <Button
-                    onClick={() => handleLike(article._id)}
+                    onClick={() => handleLike(article)}
                     className="bg-red-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
                   >
                     <Heart size={16} /> Liked
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => handleLike(article._id)}
+                    onClick={() => handleLike(article)}
                     className="bg-base-100 text-red-500 flex items-center gap-2 hover:bg-red-500 hover:text-white active:scale-[0.98]"
                   >
                     <Heart size={16} /> Like
@@ -135,14 +135,14 @@ const ArticleViewPage = ({ article }) => {
                 )}
                 {isDisliked ? (
                   <Button
-                    onClick={() => handleDislike(article._id)}
+                    onClick={() => handleDislike(article)}
                     className="bg-gray-500 text-white flex items-center gap-2 hover:opacity-90 active:scale-[0.98]"
                   >
                     <ThumbsDown size={16} /> Disliked
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => handleDislike(article._id)}
+                    onClick={() => handleDislike(article)}
                     className="bg-base-100 text-gray-500 flex items-center gap-2 hover:bg-gray-500 hover:text-white active:scale-[0.98]"
                   >
                     <ThumbsDown size={16} /> Dislike

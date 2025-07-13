@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/authContext";
 import useDataContext from "../hooks/useDataContext";
+import { useEffect } from "react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -24,6 +25,14 @@ const Navbar = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Reset search query when navigating to a new page
+    if (currentPath !== "/search") {
+      setSearchQuery("");
+    }
+  }, [currentPath]);
+
 
   const linkClass = (path) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 ${
