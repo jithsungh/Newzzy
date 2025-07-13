@@ -163,7 +163,7 @@ const ConfirmationModal = ({
             <button
               onClick={onConfirm}
               disabled={isLoading}
-              className={`btn ${styles.confirmBtn} flex-1 h-11 text-white font-semibold disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95`}
+              className={`btn ${styles.confirmBtn} flex-1 h-11 text-neutral font-semibold disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95`}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

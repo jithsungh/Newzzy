@@ -2,23 +2,23 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-// const api = axios.create({
-//   baseURL: "https://newzzy-ynxa.onrender.com/api",
-//   timeout: 15000,
-//   withCredentials: true,
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// });
-
 const api = axios.create({
-  baseURL: "http://localhost:5433/api", // Change to your backend URL
+  baseURL: "https://newzzy-ynxa.onrender.com/api",
   timeout: 15000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+// const api = axios.create({
+//   baseURL: "http://localhost:5433/api", // Change to your backend URL
+//   timeout: 15000,
+//   withCredentials: true,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
 
 // Add request interceptor to include auth token
 api.interceptors.request.use(

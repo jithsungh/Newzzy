@@ -59,6 +59,10 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
+
+  const image_url =
+    article.image_url ||
+    "https://res.cloudinary.com/dp1acglry/image/upload/v1750067412/news-1172463_1280_djpiev.jpg";
   
   useEffect(() => {
       if (isRecommendation) {
@@ -85,7 +89,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
           {/* Left Panel */}
           <div className="w-1/2 h-full flex flex-col">
             <img
-              src={article.image_url}
+              src={image_url}
               alt={article.title}
               className="object-cover h-56 w-full"
               loading="eager"

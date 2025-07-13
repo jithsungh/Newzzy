@@ -51,6 +51,9 @@ const ArticleViewPage = ({ article }) => {
   const isLiked = likedArticleIds.includes(article._id);
   const isDisliked = dislikedArticleIds.includes(article._id);
   const isSaved = savedArticleIds.includes(article._id);
+  const image_url =
+    article.image_url ||
+    "https://res.cloudinary.com/dp1acglry/image/upload/v1750067412/news-1172463_1280_djpiev.jpg";
 
   return (
     <div className="min-h-screen bg-base-100 text-primary px-8 py-10">
@@ -65,7 +68,7 @@ const ArticleViewPage = ({ article }) => {
               By {article.creator} · {dateFormat(article.pubDate)}
             </div>
             <img
-              src={article.image_url}
+              src={image_url}
               alt={article.title}
               className="rounded-lg w-full h-[350px] object-cover shadow"
               loading="eager"

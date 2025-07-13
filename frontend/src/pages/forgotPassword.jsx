@@ -218,7 +218,7 @@ const ForgotPasswordPage = () => {
               <button
                 onClick={handleSendOTP}
                 disabled={loading || !email}
-                className="w-full btn btn-error h-12 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn btn-error h-12 text-neutral font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ const ForgotPasswordPage = () => {
                   !validatePassword(newPassword).isValid ||
                   newPassword !== confirmPassword
                 }
-                className="w-full btn btn-success h-12 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn btn-success h-12 text-neutral font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">

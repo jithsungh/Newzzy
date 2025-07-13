@@ -200,7 +200,7 @@ const OTPVerification = ({
         <button
           onClick={() => handleVerify()}
           disabled={otp.some((digit) => !digit) || isVerifying || isLoading}
-          className={`w-full btn h-12 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed mb-4 ${
+          className={`w-full btn h-12 text-neutral font-semibold disabled:opacity-50 disabled:cursor-not-allowed mb-4 ${
             purpose === "password reset" ? "btn-error" : "btn-secondary"
           }`}
         >

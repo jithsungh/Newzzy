@@ -167,7 +167,7 @@ const LoginPage = () => {
           <button
             onClick={handleLogin}
             disabled={loading || !email || !password}
-            className="w-full btn btn-primary h-12 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full btn btn-primary h-12 text-neutral font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="flex items-center gap-2">

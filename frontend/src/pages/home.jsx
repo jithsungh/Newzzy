@@ -154,7 +154,7 @@ const HomePage = () => {
             <Button
               onClick={checkAndFetchRecommendations}
               disabled={isLoading}
-              className="bg-primary text-white"
+              className="bg-primary text-neutral hover:bg-neutral/80 hover:text-primary transition-colors"
             >
               {isLoading ? (
                 <>
