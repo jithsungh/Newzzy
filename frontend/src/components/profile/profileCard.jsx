@@ -74,7 +74,7 @@ const ProfileCard = ({ user }) => {
   };
 
   return (
-    <div className="rounded-lg border bg-neutral shadow-sm text-primary">
+    <div className="rounded-lg border bg-neutral shadow-sm text-primary mb-6">
       <div className="space-y-1.5 p-6 flex flex-row items-center justify-between">
         <h2 className="text-2xl font-semibold leading-none tracking-tight">
           Profile Information

@@ -73,7 +73,7 @@ const ProfilePage = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-primary">Profile</h1>
-            <p className="text-gray-600 text-secondary mt-1">
+            <p className="text-secondary mt-1">
               Manage your account and saved articles
             </p>
           </div>
@@ -88,7 +88,7 @@ const ProfilePage = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1">
             <ProfileCard user={user} />
             <StatsCard />
             <ActionCard />
