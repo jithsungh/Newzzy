@@ -15,7 +15,7 @@ import Article from "./pages/article";
 import Search from "./pages/search";
 import { useAuth } from "./context/authContext";
 import ProtectedRoute from "./context/protectedRoutes";
-import Layout from "./components/Layout";
+import Layout from "./components/Layout.jsx";
 import UserPreferences from "./pages/userPreferences";
 
 import useDataContext from "./hooks/useDataContext";
