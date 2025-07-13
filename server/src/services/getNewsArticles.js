@@ -10,6 +10,7 @@ const getLatestNewsArticles = async (n=1000) => {
     const latestNewsArticles = await NewsArticle.find({})
       .sort({ pubDate: -1 })
       .limit(n)
+      .hint({ pubDate: -1 }) // Use the index on pubDate for performance
       .exec();
     
     return latestNewsArticles;

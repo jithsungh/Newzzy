@@ -75,7 +75,7 @@ const login = async (req, res) => {
       `${logPrefix} User: ${email} | Step 1: Attempting login for email: ${email}`
     );
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
     if (!user) {
       console.log(
         `${logPrefix} User: ${email} | Step 1 FAILED: User not found`
@@ -180,7 +180,9 @@ const logout = async (req, res) => {
     console.log(
       `${logPrefix} User: unknown | Step 1: Looking up user by refresh token`
     );
-    const user = await User.findOne({ REFRESH_TOKEN: refreshToken });
+    const user = await User.findOne({ REFRESH_TOKEN: refreshToken }).hint({
+      REFRESH_TOKEN: 1,
+    }); // Use refresh token index
     if (!user) {
       console.log(
         `${logPrefix} User: unknown | Step 1 FAILED: User not found for refresh token`
@@ -243,7 +245,9 @@ const refreshToken = async (req, res) => {
     console.log(
       `${logPrefix} User: unknown | Step 1: Looking up user by refresh token`
     );
-    const user = await User.findOne({ REFRESH_TOKEN: refreshToken });
+    const user = await User.findOne({ REFRESH_TOKEN: refreshToken }).hint({
+      REFRESH_TOKEN: 1,
+    }); // Use refresh token index
     if (!user) {
       console.log(
         `${logPrefix} User: unknown | Step 1 FAILED: User not found for refresh token`
@@ -329,7 +333,7 @@ const register = async (req, res) => {
     console.log(
       `${logPrefix} User: ${email} | Step 1: Checking if user already exists`
     );
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
     if (userExists) {
       console.log(
         `${logPrefix} User: ${email} | Step 1 FAILED: User already exists`

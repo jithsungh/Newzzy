@@ -61,8 +61,16 @@ const likeArticle = async (req, res) => {
     const [article, user, existingLike, existingDislike] = await Promise.all([
       NewsArticle.findById(article_id),
       User.findById(user_id),
-      UserInteraction.findOne({ user_id, article_id, action: "like" }),
-      UserInteraction.findOne({ user_id, article_id, action: "dislike" }),
+      UserInteraction.findOne({ user_id, article_id, action: "like" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
+      UserInteraction.findOne({ user_id, article_id, action: "dislike" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
     ]);
 
     if (!article) {
@@ -206,8 +214,16 @@ const dislikeArticle = async (req, res) => {
     const [article, user, existingDislike, existingLike] = await Promise.all([
       NewsArticle.findById(article_id),
       User.findById(user_id),
-      UserInteraction.findOne({ user_id, article_id, action: "dislike" }),
-      UserInteraction.findOne({ user_id, article_id, action: "like" }),
+      UserInteraction.findOne({ user_id, article_id, action: "dislike" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
+      UserInteraction.findOne({ user_id, article_id, action: "like" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
     ]);
 
     if (!article) {
@@ -336,7 +352,11 @@ const saveArticle = async (req, res) => {
     const [article, user, existingSave] = await Promise.all([
       NewsArticle.findById(article_id),
       User.findById(user_id),
-      UserInteraction.findOne({ user_id, article_id, action: "save" }),
+      UserInteraction.findOne({ user_id, article_id, action: "save" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
     ]);
 
     if (!article) {
@@ -453,7 +473,11 @@ const shareArticle = async (req, res) => {
     const [article, user, existingShare] = await Promise.all([
       NewsArticle.findById(article_id),
       User.findById(user_id),
-      UserInteraction.findOne({ user_id, article_id, action: "share" }),
+      UserInteraction.findOne({ user_id, article_id, action: "share" }).hint({
+        user_id: 1,
+        action: 1,
+        createdAt: -1,
+      }),
     ]);
 
     if (!article) {
@@ -578,6 +602,7 @@ const getRecentActivity = async (req, res) => {
     );
     const interactions = await UserInteraction.find({ user_id })
       .sort({ createdAt: -1 })
+      .hint({ user_id: 1, createdAt: -1 }) // Use user date index
       .limit(10);
 
     console.log(

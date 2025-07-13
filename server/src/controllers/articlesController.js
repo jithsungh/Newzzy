@@ -162,6 +162,7 @@ const getLatestTrendingArticles = async (req, res) => {
     );
     const articles = await NewsArticle.find()
       .sort({ likes: -1, pubDate: -1 })
+      .hint({ likes: -1, pubDate: -1 }) // Use trending index for performance
       .limit(200);
 
     console.log(
@@ -234,9 +235,9 @@ const getArticleByKeyword = async (req, res) => {
         req.user?.id || "anonymous"
       } | Step 2: Fetching articles with keyword: ${keyword}`
     );
-    const articles = await NewsArticle.find({ keywords: keyword }).sort({
-      pubDate: -1,
-    });
+    const articles = await NewsArticle.find({ keywords: keyword })
+      .sort({ pubDate: -1 })
+      .hint({ keywords: 1, pubDate: -1 }); // Use keywords + pubDate index for performance
 
     if (articles.length === 0) {
       console.log(
@@ -311,7 +312,8 @@ const getSavedArticles = async (req, res) => {
       action: "save",
     })
       .populate("article_id")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }); // Use user action date index
 
     if (!savedArticles || savedArticles.length === 0) {
       console.log(
@@ -377,7 +379,8 @@ const getLikedArticles = async (req, res) => {
       action: "like",
     })
       .populate("article_id")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }); // Use user action date index
 
     if (!likedArticles || likedArticles.length === 0) {
       console.log(
@@ -443,7 +446,8 @@ const getDisLikedArticles = async (req, res) => {
       action: "dislike",
     })
       .populate("article_id")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }); // Use user action date index
 
     if (!dislikedArticles || dislikedArticles.length === 0) {
       console.log(
@@ -509,6 +513,7 @@ const getLikedArticleIds = async (req, res) => {
       action: "like",
     })
       .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }) // Use user action date index
       .select("article_id")
       .lean(); // returns plain JS objects
 
@@ -579,6 +584,7 @@ const getDislikedArticleIds = async (req, res) => {
       action: "dislike",
     })
       .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }) // Use user action date index
       .select("article_id")
       .lean();
 
@@ -649,6 +655,7 @@ const getSavedArticleIds = async (req, res) => {
       action: "save",
     })
       .sort({ createdAt: -1 })
+      .hint({ user_id: 1, action: 1, createdAt: -1 }) // Use user action date index
       .select("article_id")
       .lean();
 

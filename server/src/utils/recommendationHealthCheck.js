@@ -189,6 +189,7 @@ class RecommendationHealthCheck {
       // Test query performance
       await Recommendation.find({ status: "new" })
         .sort({ score: -1 })
+        .hint({ user_id: 1, category: 1, status: 1, score: -1 }) // Use recommendations index
         .limit(50)
         .exec();
 
@@ -376,7 +377,9 @@ class RecommendationHealthCheck {
       const savedRecommendations = await Recommendation.find({
         user_id: userId,
         status: "new",
-      }).limit(5);
+      })
+        .hint({ user_id: 1, category: 1, status: 1, score: -1 }) // Use recommendations index
+        .limit(5);
 
       console.log("📋 Sample recommendations:");
       savedRecommendations.forEach((rec, index) => {

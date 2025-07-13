@@ -308,7 +308,7 @@ const verifyCredentialsAndSendOTP = async (req, res) => {
     }
 
     // Check if user exists and verify password
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -375,7 +375,7 @@ const forgotPasswordSendOTP = async (req, res) => {
     }
 
     // Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -562,7 +562,7 @@ const resetPassword = async (req, res) => {
     }
 
     // Find user and update password
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
     if (!user) {
       return res.status(404).json({
         success: false,

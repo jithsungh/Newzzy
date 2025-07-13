@@ -344,7 +344,7 @@ const markAsRead = async (req, res) => {
     const recommendation = await Recommendation.findOne({
       user_id: userId,
       article_id: articleId,
-    });
+    }).hint({ user_id: 1, category: 1, status: 1, score: -1 }); // Use user category index
 
     if (!recommendation) {
       console.log(
