@@ -30,8 +30,6 @@ const fetchAndStoreNews = async () => {
       "education",
       "automotive",
     ];
-    
-
 
     console.log("Top keywords:", keywords);
     if (keywords.length === 0) {
@@ -62,7 +60,15 @@ const fetchAndStoreNews = async () => {
             !article.article_id ||
             !article.title ||
             !article.description ||
-            !article.image_url
+            !article.image_url ||
+            !article.pubDate ||
+            !article.source_name ||
+            !article.source_icon ||
+            !article.language ||
+            !article.country ||
+            !article.category ||
+            !article.link ||
+            !article.creator
           )
             continue;
 
@@ -118,7 +124,6 @@ const fetchAndStoreNews = async () => {
             keywords: finalKeywords,
             creator: article.creator || [],
             description: article.description || "",
-            content: article.content || "",
             pubDate: new Date(article.pubDate),
             image_url: article.image_url || "",
             source_id: article.source_id,
