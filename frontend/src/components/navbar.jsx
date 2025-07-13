@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Home,
   Compass,
@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/authContext";
 import useDataContext from "../hooks/useDataContext";
-import { useEffect } from "react";
 
 const Navbar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const hideTimeoutRef = useRef(null);
   const currentPath = location.pathname;
 
   const { user, setLogin } = useAuth();
@@ -33,6 +35,95 @@ const Navbar = () => {
     }
   }, [currentPath]);
 
+  // Effect to handle mobile menu state changes
+  useEffect(() => {
+    if (isOpen) {
+      // Keep navbar visible when mobile menu is open
+      setIsVisible(true);
+      // Clear any hide timeouts
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    } else {
+      // When mobile menu closes, set a timeout to hide if scrolled down
+      if (window.scrollY > 10) {
+        hideTimeoutRef.current = setTimeout(() => {
+          setIsVisible(false);
+        }, 2000);
+      }
+    }
+  }, [isOpen]);
+
+  // Scroll handler for auto-hide functionality
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Don't hide navbar if mobile menu is open
+      if (isOpen) {
+        setIsVisible(true);
+        return;
+      }
+
+      // Show navbar when scrolling up or at the top
+      if (currentScrollY < lastScrollY || currentScrollY < 10) {
+        setIsVisible(true);
+
+        // Clear any existing timeout
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+        }
+
+        // Set new timeout to hide after 3 seconds of inactivity
+        hideTimeoutRef.current = setTimeout(() => {
+          if (window.scrollY > 10 && !isOpen) {
+            setIsVisible(false);
+          }
+        }, 3000);
+      }
+      // Hide navbar when scrolling down (but not immediately)
+      else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Clear timeout when actively scrolling down
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+        }
+        setIsVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    // Mouse movement handler to show navbar
+    const handleMouseMove = (e) => {
+      // Show navbar when mouse is near the top (within 100px)
+      if (e.clientY < 100) {
+        setIsVisible(true);
+
+        // Clear any existing timeout
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+        }
+
+        // Set new timeout to hide after 3 seconds
+        hideTimeoutRef.current = setTimeout(() => {
+          if (window.scrollY > 10 && !isOpen) {
+            setIsVisible(false);
+          }
+        }, 3000);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, [lastScrollY, isOpen]);
 
   const linkClass = (path) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 ${
@@ -58,8 +149,31 @@ const Navbar = () => {
     }
   };
 
+  const handleNavbarMouseEnter = () => {
+    setIsVisible(true);
+    // Clear any existing timeout when hovering
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
+  };
+
+  const handleNavbarMouseLeave = () => {
+    // Set timeout to hide after leaving navbar (only if scrolled down and mobile menu is closed)
+    if (window.scrollY > 10 && !isOpen) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 2000);
+    }
+  };
+
   return (
-    <nav className="bg-neutral shadow-lg w-full relative z-40">
+    <nav
+      className={`bg-neutral shadow-lg w-full fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+      onMouseEnter={handleNavbarMouseEnter}
+      onMouseLeave={handleNavbarMouseLeave}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
