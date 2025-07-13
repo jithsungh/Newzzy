@@ -62,7 +62,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/article" element={<Article />} />
+          <Route path="/article/:id" element={<Article />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route

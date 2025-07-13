@@ -1,12 +1,11 @@
 import React from "react";
 import { getArticleById } from "../api/article";
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import ArticleViewPage from "../components/ArticleViewPage.jsx";
 
 const Article = () => {
   const [article, setArticle] = React.useState(null);
-  const [searchParams] = useSearchParams();
-  const article_id = searchParams.get("id") || "";
+  const { id: article_id } = useParams();
 
   React.useEffect(() => {
     const fetchArticle = async () => {

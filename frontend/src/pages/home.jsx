@@ -24,6 +24,11 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [currentArticleIndex, setCurrentArticleIndex] = useState(null);
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  const firstName = user?.name?.split(" ")[0] || "User";
 
   const handleOpenPopUp = () => {
     setIsOpen(true);
@@ -31,9 +36,6 @@ const HomePage = () => {
   const handleClosePopUp = () => {
     setIsOpen(false);
   };
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
 
   const checkAndFetchRecommendations = async () => {
     if (isLoading) return; // Prevent multiple simultaneous calls
@@ -94,7 +96,7 @@ const HomePage = () => {
     <div className="max-w-7xl mx-auto px-8 pt-10">
       <div className="flex justify-between">
         <div>
-          <h2 className="text-3xl font-bold mb-2">Hello, {user.name}</h2>
+          <h2 className="text-3xl font-bold mb-2">Hello, {firstName}</h2>
           <p className="text-secondary text-lg text-muted-foreground mb-8">
             Your personalized stories and updates, curated for you
           </p>

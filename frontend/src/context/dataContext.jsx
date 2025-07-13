@@ -24,7 +24,7 @@ import {
   getRecentActivity,
   toggleTheme,
 } from "../api/profile";
-import { toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { toastManager } from "../utils/toastManager";
 import { useAuth } from "./authContext";
 import { useNavigate } from "react-router-dom";
@@ -166,10 +166,10 @@ export const DataProvider = ({ children }) => {
       navigator.share({
         title: article.title,
         text: `Check out this article by ${article.creator}`,
-        url: `/article?id=${article._id}`,
+        url: `/article/${article._id}`,
       });
     } else {
-      const shareText = `${article.title} by ${article.creator} - /article?id=${article._id}`;
+      const shareText = `${article.title} by ${article.creator} - /article/${article._id}`;
       navigator.clipboard.writeText(shareText);
       toast({
         title: "Link copied!",
