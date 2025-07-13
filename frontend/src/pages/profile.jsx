@@ -98,10 +98,10 @@ const ProfilePage = () => {
           </div>
           <div className="lg:col-span-2">
             <div className="space-y-6">
-              <div className="h-10 items-center justify-center rounded-md bg-gray-200 py-0.5 px-1 grid w-full grid-cols-2">
+              <div className="h-10 items-center justify-center rounded-lg bg-gray-400 py-1 px-1 grid w-full grid-cols-2">
                 <button
                   onClick={() => handleTabClick("SavedArticlesTab")}
-                  className={`border rounded-tl-md rounded-bl-md inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+                  className={`hover:opacity-80 rounded-tl-md rounded-bl-md inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
                   ${
                     activeTab === "SavedArticlesTab"
                       ? "bg-[#0F172A] text-white"
@@ -113,7 +113,7 @@ const ProfilePage = () => {
 
                 <button
                   onClick={() => handleTabClick("ActivityTab")}
-                  className={`border rounded-tr-md rounded-br-md inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+                  className={`hover:opacity-80 rounded-tr-md rounded-br-md inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
                   ${
                     activeTab === "ActivityTab"
                       ? "bg-[#0F172A] text-white"

@@ -100,8 +100,8 @@ const ArticleCard = ({ article, onClick }) => {
             onClick={() => handleShareArticle(article)}
           />
           <div className="flex-1 text-right px-2">
-            <p className="text-md text-secondary">
-              Likes: <span className="font-bold text-primary">{article.likes}</span>
+            <p className="text-md text-secondary flex justify-end gap-1">
+              Likes: <span className="font-medium text-primary">{" "}{article.likes}</span>
             </p>
           </div>
         </div>
