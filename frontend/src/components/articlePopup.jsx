@@ -84,7 +84,7 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
       <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center">
         <div
           ref={popupRef}
-          className="relative bg-base-100 text-primary rounded-lg shadow-xl w-[900px] h-[600px] flex overflow-hidden border border-neutral"
+          className="relative bg-base-100 text-primary rounded-lg shadow-xl w-[900px] h-[600px] flex-col md:flex-row overflow-hidden border border-neutral"
         >
           {/* Left Panel */}
           <div className="w-1/2 h-full flex flex-col">
