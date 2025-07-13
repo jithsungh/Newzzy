@@ -39,8 +39,9 @@ app.get("/", (req, res) => {
 app.get("/run-news-fetcher", async (req, res) => {
   try {
     console.log("🔄 Running manual news fetch...");
-    await fetchAndStoreNews();
     res.status(200).send("✅ News fetched successfully");
+    await fetchAndStoreNews();
+    console.log("✅ News fetch completed successfully");
   } catch (error) {
     console.error("❌ Error in manual news fetch:", error.message);
     res.status(500).send("❌ News fetch failed");
