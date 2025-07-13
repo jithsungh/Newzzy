@@ -24,6 +24,7 @@ import {
   getRecentActivity,
   toggleTheme,
 } from "../api/profile";
+import { toast} from "react-hot-toast";
 import { toastManager } from "../utils/toastManager";
 import { useAuth } from "./authContext";
 import { useNavigate } from "react-router-dom";

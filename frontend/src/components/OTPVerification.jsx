@@ -174,7 +174,7 @@ const OTPVerification = ({
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={index === 0 ? handlePaste : undefined}
                 className="w-12 h-14 text-center text-xl font-bold border-2 border-neutral rounded-lg 
-                          focus:border-secondary focus:outline-none transition-colors
+                          focus:border-primary focus:outline-none transition-colors
                           bg-base-100 text-primary"
                 disabled={isVerifying || isLoading}
               />

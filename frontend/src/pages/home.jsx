@@ -49,8 +49,7 @@ const HomePage = () => {
         setRecommendations([]);
         navigate("/preferences", {
           state: {
-            fromHome: true,
-            interestCount: result.interestCount || 0,
+            fromReset: true,
           },
         });
       }
@@ -113,8 +112,7 @@ const HomePage = () => {
                 );
                 navigate("/preferences", {
                   state: {
-                    fromHome: true,
-                    interestCount: result.interestCount || 0,
+                    fromReset: true,
                   },
                 });
               }

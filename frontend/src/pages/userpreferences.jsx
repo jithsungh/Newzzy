@@ -125,6 +125,15 @@ const UserPreferences = () => {
   const navigate = useNavigate();
   const { user, setLogin } = useAuth();
   const location = useLocation();
+  
+  // check whwete location. fromReet true or not
+  useEffect(() => {
+    const fromReset = location.state?.fromReset;
+    if(!fromReset) {
+      navigate("/home");
+      return;
+    }
+  }, [location.state, navigate]);
 
   if (!user) {
     navigate("/login");
