@@ -33,6 +33,18 @@ const Navbar = () => {
     if (currentPath !== "/search") {
       setSearchQuery("");
     }
+
+    // Scroll to top when navigating to a new page
+    window.scrollTo(0, 0);
+
+    // Reset navbar visibility state and scroll position
+    setIsVisible(true);
+    setLastScrollY(0);
+
+    // Clear any existing timeouts
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
   }, [currentPath]);
 
   // Effect to handle mobile menu state changes
