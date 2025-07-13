@@ -175,9 +175,6 @@ const resetAPIKeys = () => {
   apiManager.resetAllKeys();
   console.log("🔄 All API keys have been reset");
 };
-
-fetchAndStoreNews();
-
 // Export functions for external use
 module.exports = {
   fetchAndStoreNews,
