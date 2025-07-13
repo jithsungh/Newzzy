@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/authContext";
 import { Navigate } from "react-router-dom";
-import ProfileCard from "../components/profile/ProfileCard.jsx";
-import StatsCard from "../components/profile/StatsCard.jsx";
-import ActionCard from "../components/profile/ActionCard.jsx";
+import ProfileCard from "../components/profile/profileCard.jsx";
+import StatsCard from "../components/profile/ptatsCard.jsx";
+import ActionCard from "../components/profile/actionCard.jsx";
 import ArticleCard from "../components/ArticleCard";
 import ArticlePopup from "../components/ArticlePopup";
 import Activity from "../components/profile/Activity.jsx";
