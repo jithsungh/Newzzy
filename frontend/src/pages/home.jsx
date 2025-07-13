@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
 import { toastManager } from "../utils/toastManager";
 import ArticleCard from "../components/ArticleCard.jsx";
-import ArticlePopup from "../components/ArticlePopup.jsx";
+import ArticlePopup from "../components/ArticlePopup";
 import { Button } from "../components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
