@@ -5,6 +5,7 @@ Welcome to **Newzzy** – a modern, full-stack news aggregation and recommendati
 ---
 
 ## Table of Contents
+
 - [Project Overview](#project-overview)
 - [Live Demo](#live-demo)
 - [Tech Stack](#tech-stack)
@@ -22,11 +23,13 @@ Welcome to **Newzzy** – a modern, full-stack news aggregation and recommendati
 ---
 
 ## Project Overview
+
 Newzzy is a scalable, feature-rich platform for news discovery, personalized recommendations, and user engagement. It leverages advanced keyword extraction, secure authentication, and a beautiful UI to provide a best-in-class experience.
 
 ---
 
 ## Live Demo
+
 - **Frontend:** [newzzy-six.vercel.app](https://newzzy-six.vercel.app/)
 - **Server:** [newzzy-ynxa.onrender.com](https://newzzy-ynxa.onrender.com)
 - **Backend:** [newzzy-server-1.onrender.com](https://newzzy-server-1.onrender.com)
@@ -34,6 +37,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## Tech Stack
+
 - **Frontend:** React, Vite, Tailwind CSS, DaisyUI
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB (with advanced indexing)
@@ -44,6 +48,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## Architecture
+
 - **MERN Stack:** MongoDB, Express.js, React, Node.js
 - **RESTful APIs:** Modular, scalable endpoints
 - **Microservices:** Separation of backend, server, and frontend for scalability
@@ -52,7 +57,9 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## Features
+
 ### User-Facing
+
 - **News Aggregation:** Fetches and displays trending articles
 - **Personalized Recommendations:** Advanced keyword extraction and user preferences
 - **Authentication:** Secure login/signup with JWT and bcrypt
@@ -63,6 +70,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 - **Responsive Design:** Works on all devices
 
 ### Admin/Developer
+
 - **API Key Management:** Secure, modular API key system
 - **Keyword Extraction:** Advanced algorithms for better recommendations
 - **Index Optimization:** MongoDB indexes for performance
@@ -71,6 +79,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## Setup & Installation
+
 1. **Clone the repository:**
    ```sh
    git clone https://github.com/jithsungh/Newzzy.git
@@ -102,6 +111,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## Folder Structure
+
 - `frontend/` – React app, UI components, pages, hooks, context
 - `backend/` – API logic, controllers, models, routes, utils
 - `server/` – Additional server logic, migrations, middlewares
@@ -109,6 +119,7 @@ Newzzy is a scalable, feature-rich platform for news discovery, personalized rec
 ---
 
 ## API Endpoints
+
 - **Authentication:** `/api/auth/login`, `/api/auth/signup`, `/api/auth/forgot-password`
 - **Articles:** `/api/articles`, `/api/articles/:id`, `/api/articles/search`
 - **Profile:** `/api/profile`, `/api/profile/image`
@@ -120,6 +131,7 @@ See [MONGODB_INDEX_OPTIMIZATION.md](MONGODB_INDEX_OPTIMIZATION.md) and [API_KEY_
 ---
 
 ## Security
+
 - **JWT Authentication:** Stateless, secure sessions
 - **Password Hashing:** bcrypt for strong password security
 - **API Key Validation:** Prevents unauthorized access
@@ -128,6 +140,7 @@ See [MONGODB_INDEX_OPTIMIZATION.md](MONGODB_INDEX_OPTIMIZATION.md) and [API_KEY_
 ---
 
 ## Key Points for Recruiters
+
 - **Scalable Architecture:** Modular, microservices-ready
 - **Modern UI/UX:** Tailwind CSS, DaisyUI, responsive design
 - **Security Best Practices:** JWT, bcrypt, API key management
@@ -139,26 +152,29 @@ See [MONGODB_INDEX_OPTIMIZATION.md](MONGODB_INDEX_OPTIMIZATION.md) and [API_KEY_
 ---
 
 ## Future Roadmap
+
 - [ ] **Push Notifications**
 - [ ] **Social Login Integration**
 - [ ] **Advanced Analytics Dashboard**
 - [ ] **Mobile App (React Native)**
-- [ ] **AI-powered Recommendations**
 - [ ] **Internationalization (i18n)**
 
 ---
 
 ## Contributing
+
 We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
 ## License
+
 This project is licensed under the MIT License.
 
 ---
 
 ## Useful Links
+
 - [Frontend Demo](https://newzzy-six.vercel.app/)
 - [Backend API](https://newzzy-server-1.onrender.com)
 - [Server API](https://newzzy-ynxa.onrender.com)
@@ -173,6 +189,7 @@ This project is licensed under the MIT License.
 ---
 
 ## Contact
+
 For questions, reach out via [GitHub Issues](https://github.com/jithsungh/Newzzy/issues) or email the maintainer.
 
 ---
