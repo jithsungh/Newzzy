@@ -223,8 +223,17 @@ const Navbar = () => {
                 placeholder="Search articles, topics, creators..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full rounded-md pl-10 pr-3 py-2 bg-base-100 text-primary placeholder:text-secondary border border-border focus:ring-2 ring-muted transition-all duration-200"
+                className="w-full rounded-md pl-10 pr-10 py-2 bg-base-100 text-primary placeholder:text-secondary border border-border focus:ring-2 ring-muted transition-all duration-200"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </form>
           </div>
 
@@ -298,8 +307,17 @@ const Navbar = () => {
               placeholder="Search articles..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full rounded-md pl-10 pr-3 py-2 bg-base-100 text-primary placeholder:text-secondary border border-border focus:ring-2 ring-muted transition-all duration-200"
+              className="w-full rounded-md pl-10 pr-10 py-2 bg-base-100 text-primary placeholder:text-secondary border border-border focus:ring-2 ring-muted transition-all duration-200"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
           </form>
 
           {user && (

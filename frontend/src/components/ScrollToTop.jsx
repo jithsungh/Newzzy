@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -9,9 +9,9 @@ const ScrollToTop = () => {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'instant' // Use instant for immediate scroll on page change
+      behavior: "instant", // Use instant for immediate scroll on page change
     });
-    
+
     // Add a small delay to ensure the scroll position is set before any other effects
     setTimeout(() => {
       window.scrollTo(0, 0);
