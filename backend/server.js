@@ -32,7 +32,17 @@ app.use("/api/keys", apiKeyRoutes);
 // app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.send("server running on port....");
+  res.send(`server running on port....${process.env.PORT}`);
+});
+
+app.get("/run-news-fetcher", async (req, res) => {
+  try {
+    await fetchAndStoreNews();
+    res.status(200).send("✅ News fetched successfully");
+  } catch (error) {
+    console.error("❌ Error in manual news fetch:", error.message);
+    res.status(500).send("❌ News fetch failed");
+  }
 });
 
 // app.use("/*", (req, res) => {

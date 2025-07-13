@@ -176,16 +176,6 @@ const resetAPIKeys = () => {
   console.log("🔄 All API keys have been reset");
 };
 
-// Schedule every 15 minutes (more conservative to avoid rate limits)
-// You can adjust the cron expression as needed
-// */2 = every 2 minutes, */15 = every 15 minutes, */30 = every 30 minutes
-cron.schedule("*/15 * * * *", () => {
-  console.log("🕒 Fetching news based on user interests...");
-  fetchAndStoreNews();
-});
-
-// Run once at startup (commented out to avoid immediate rate limiting)
-// Uncomment when your API keys reset
 fetchAndStoreNews();
 
 // Export functions for external use

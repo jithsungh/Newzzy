@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 // Import pages
 import LoginPage from "./pages/login";
 import SignupPage from "./pages/signup";
+import ForgotPasswordPage from "./pages/forgotPassword";
 import HomePage from "./pages/home";
 import ExplorePage from "./pages/explore";
 import ProfilePage from "./pages/profile";
@@ -33,6 +34,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/search" element={<Search />} />
           <Route path="/" element={<IndexPage />} />
           <Route path="/explore" element={<ExplorePage />} />
@@ -63,14 +65,14 @@ function App() {
           <Route path="/article" element={<Article />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-          <Route
-            path="/preferences"
-            element={
-              <ProtectedRoute>
-                <UserPreferences />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/preferences"
+          element={
+            <ProtectedRoute>
+              <UserPreferences />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

@@ -39,7 +39,7 @@ connectDB()
 // Middleware
 app.use(
   cors({
-    origin: ["https://newzzy-six.vercel.app", "http://localhost:3000"], // Your frontend URL
+    origin: ["https://newzzy-six.vercel.app", "http://localhost:5173"], // Your frontend URL
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

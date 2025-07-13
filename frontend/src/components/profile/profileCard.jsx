@@ -163,16 +163,7 @@ const ProfileCard = ({ user }) => {
           <label className="block text-sm font-medium text-secondary mb-1">
             Email
           </label>
-          {isEditing ? (
-            <input
-              type="email"
-              value={editedEmail}
-              onChange={(e) => setEditedEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded text-gray-900"
-            />
-          ) : (
             <p>{editedEmail}</p>
-          )}
         </div>
       </div>
     </div>

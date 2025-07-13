@@ -2,6 +2,50 @@ const User = require("../models/users.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// Password validation function
+const validatePassword = (password) => {
+  const validations = {
+    minLength: password.length >= 6,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+
+  const isValid = Object.values(validations).every(Boolean);
+
+  return {
+    isValid,
+    validations,
+    errors: []
+      .concat(
+        !validations.minLength
+          ? ["Password must be at least 6 characters long"]
+          : []
+      )
+      .concat(
+        !validations.hasUppercase
+          ? ["Password must contain at least one uppercase letter"]
+          : []
+      )
+      .concat(
+        !validations.hasLowercase
+          ? ["Password must contain at least one lowercase letter"]
+          : []
+      )
+      .concat(
+        !validations.hasNumber
+          ? ["Password must contain at least one number"]
+          : []
+      )
+      .concat(
+        !validations.hasSpecialChar
+          ? ["Password must contain at least one special character"]
+          : []
+      ),
+  };
+};
+
 const login = async (req, res) => {
   const logPrefix = "[AUTH_LOGIN]";
 
@@ -72,12 +116,6 @@ const login = async (req, res) => {
         expiresIn: "15m",
       }
     );
-
-    console.log(
-      `${logPrefix} User: ${email} (${user._id}) | Step 4: Tokens generated, saving refresh token`
-    );
-    user.REFRESH_TOKEN = REFRESH_TOKEN;
-    await user.save();
 
     console.log(
       `${logPrefix} User: ${email} (${user._id}) | Step 4: Tokens generated, saving refresh token`
@@ -276,6 +314,16 @@ const register = async (req, res) => {
   }
 
   const { name, email, password } = req.body;
+
+  // Password validation
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: "Password does not meet complexity requirements",
+      errors: passwordValidation.errors,
+    });
+  }
 
   try {
     console.log(

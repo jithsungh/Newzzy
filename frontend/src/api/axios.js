@@ -2,8 +2,17 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+// const api = axios.create({
+//   baseURL: "https://newzzy-ynxa.onrender.com/api",
+//   timeout: 15000,
+//   withCredentials: true,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
 const api = axios.create({
-  baseURL: "https://newzzy-ynxa.onrender.com/api",
+  baseURL: "http://localhost:5433/api", // Change to your backend URL
   timeout: 15000,
   withCredentials: true,
   headers: {
