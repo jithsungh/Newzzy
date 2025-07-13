@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import SearchResults from "../components/SearchResults";
+import SearchResults from "../components/searchResults";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
