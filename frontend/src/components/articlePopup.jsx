@@ -84,8 +84,15 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
       <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center">
         <div
           ref={popupRef}
-          className="relative bg-base-100 text-primary rounded-lg shadow-xl w-[90vw] max-w-5xl h-[90vh] md:h-[600px] flex flex-col md:flex-row overflow-hidden border border-neutral"
+          className="relative bg-base-100 text-primary rounded-lg shadow-xl w-[90vw] max-w-5xl h-[90vh] md:h-[600px] flex flex-col md:flex-row overflow-auto md:overflow-hidden border border-neutral"
         >
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-4 z-10 bg-base-100 p-1.5 rounded-full hover:bg-error/10 shadow"
+            title="Close"
+          >
+            <X size={20} />
+          </button>
           {/* Left Panel */}
           <div className="w-full md:w-1/2 h-full flex flex-col">
             <img
@@ -107,14 +114,6 @@ const ArticlePopup = ({ isOpen, onClose, article, onPrev, onNext, isRecommendati
 
           {/* Right Panel */}
           <div className="w-full md:w-1/2 h-full flex flex-col bg-neutral text-primary relative">
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-4 z-10 bg-base-100 p-1.5 rounded-full hover:bg-error/10 shadow"
-              title="Close"
-            >
-              <X size={20} />
-            </button>
-
             <div className="flex-1 p-6 pt-8 overflow-y-auto">
               {/* Source Info */}
               <div className="mb-6">
