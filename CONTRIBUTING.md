@@ -43,6 +43,7 @@ Please be respectful and constructive in all interactions. See [CODE_OF_CONDUCT.
 ---
 
 ## Guidelines
+
 - Write clear, descriptive commit messages.
 - Keep pull requests focused and small.
 - Ensure your code passes all tests and lint checks.
