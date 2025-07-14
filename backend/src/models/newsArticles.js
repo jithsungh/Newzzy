@@ -4,7 +4,7 @@ const newsArticleSchema = new mongoose.Schema(
   {
     article_id: {
       type: String,
-      unique: true,
+      required: true,
     },
     title: {
       type: String,
