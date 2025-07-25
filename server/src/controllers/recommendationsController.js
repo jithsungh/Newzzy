@@ -81,9 +81,9 @@ const getRecommendations = async (req, res) => {
       status: "new",
     })
       .populate("article_id")
-      .sort({ score: -1, pubDate: -1 }) // Sort by score first, then by publication date
+      .sort({ score: -1, createdAt: -1 }) // Sort by score first, then by creation date
       .limit(200)
-      .hint({ user_id: 1, status: 1, score: -1, pubDate: -1 }) // Use the compound index
+      .hint({ user_id: 1, status: 1, score: -1, createdAt: -1 }) // Use the compound index
       .exec();
 
     console.log(
@@ -344,7 +344,7 @@ const markAsRead = async (req, res) => {
     const recommendation = await Recommendation.findOne({
       user_id: userId,
       article_id: articleId,
-    }).hint({ user_id: 1, category: 1, status: 1, score: -1 }); // Use user category index
+    }).hint({ user_id: 1, article_id: 1 }); // Use user-article index
 
     if (!recommendation) {
       console.log(

@@ -124,6 +124,7 @@ const markRecommendationAsRead = async (articleId) => {
       articleId,
     });
     if (response.status === 200) {
+      console.log("Response from markRecommendationAsRead:", response);
       const { AccessToken } = response.data;
       localStorage.setItem("AccessToken", AccessToken);
       return { success: true, data: response.data };

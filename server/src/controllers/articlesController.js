@@ -161,8 +161,8 @@ const getLatestTrendingArticles = async (req, res) => {
       } | Step 1: Fetching trending articles (sorted by likes)`
     );
     const articles = await NewsArticle.find()
-      .sort({ likes: -1, pubDate: -1 })
-      .hint({ likes: -1, pubDate: -1 }) // Use trending index for performance
+      .sort({ pubDate: -1, likes: -1 })
+      .hint({ pubDate: -1, likes: -1 }) // Use corrected trending index for performance
       .limit(200);
 
     console.log(
