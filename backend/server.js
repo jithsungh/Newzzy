@@ -8,15 +8,17 @@ const { fetchAndStoreNews } = require("./src/controllers/newsfetcher.js");
 // const authRoutes = require("./src/routes/auth");
 // const newsRoutes = require("./src/routes/api/news");
 
+const port = process.env.PORT || 8080;
+
 const app = express();
 
 // const cookieParser = require("cookie-parser");
 // app.use(cookieParser());
 connectDB()
   .then(() => {
-    app.listen(process.env.PORT, () => {
-      console.log(`Server is running on port ${process.env.PORT}`);
-      console.log(`http://localhost:${process.env.PORT}/`);
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      console.log(`http://localhost:${port}/`);
     });
   })
   .catch((error) => console.log(error));

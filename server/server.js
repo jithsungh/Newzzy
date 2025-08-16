@@ -14,6 +14,7 @@ const app = express();
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
+const port = process.env.PORT || 8080;
 connectDB()
   .then(() => {
     console.log("[SERVER] Database connected successfully");
@@ -23,9 +24,9 @@ connectDB()
     scheduleStreakReset();
     console.log("[SERVER] Streak reset scheduler initialized");
 
-    app.listen(process.env.PORT, () => {
-      console.log(`[SERVER] Server is running on port ${process.env.PORT}`);
-      console.log(`[SERVER] Server URL: http://localhost:${process.env.PORT}/`);
+    app.listen(port, () => {
+      console.log(`[SERVER] Server is running on port ${port}`);
+      console.log(`[SERVER] Server URL: http://localhost:${port}/`);
       console.log(
         "[SERVER] ==================== SERVER STARTUP COMPLETED ===================="
       );
