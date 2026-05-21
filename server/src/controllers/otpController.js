@@ -3,29 +3,48 @@ const SibApiV3Sdk = require("sib-api-v3-sdk");
 const User = require("../models/users.js");
 const bcrypt = require("bcryptjs");
 
-// Configure Brevo client
+// ─── Logger ───────────────────────────────────────────────────────────────────
+const log = {
+  info:  (fn, msg, meta = {}) => console.log(JSON.stringify({ level: "INFO",  fn, msg, ...meta, ts: new Date().toISOString() })),
+  warn:  (fn, msg, meta = {}) => console.warn(JSON.stringify({ level: "WARN",  fn, msg, ...meta, ts: new Date().toISOString() })),
+  error: (fn, msg, meta = {}) => console.error(JSON.stringify({ level: "ERROR", fn, msg, ...meta, ts: new Date().toISOString() })),
+  debug: (fn, msg, meta = {}) => console.log(JSON.stringify({ level: "DEBUG", fn, msg, ...meta, ts: new Date().toISOString() })),
+};
+
+// ─── Brevo Setup ──────────────────────────────────────────────────────────────
 const brevoClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = brevoClient.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
-// Store OTPs temporarily (in production, use Redis or database)
+if (!process.env.BREVO_API_KEY) {
+  log.warn("init", "BREVO_API_KEY is not set — emails will fail");
+}
+if (!process.env.JWT_SECRET) {
+  log.warn("init", "JWT_SECRET is not set — OTP hashing will fail");
+}
+
+// ─── OTP Store ────────────────────────────────────────────────────────────────
 const otpStore = new Map();
 
-// Generate OTP
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  log.debug("generateOTP", "OTP generated");  // never log the actual OTP value
+  return otp;
 };
 
-// Generate hash for OTP verification
 const generateHash = (email, otp) => {
-  return crypto
+  const hash = crypto
     .createHash("sha256")
     .update(`${email}:${otp}:${process.env.JWT_SECRET}`)
     .digest("hex");
+  log.debug("generateHash", "Hash generated", { email });
+  return hash;
 };
 
-// Send OTP Email
+// ─── Email Senders ────────────────────────────────────────────────────────────
 const sendOtpEmail = async (toEmail, otp) => {
+  log.info("sendOtpEmail", "Attempting to send OTP email", { toEmail });
   try {
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -40,58 +59,52 @@ const sendOtpEmail = async (toEmail, otp) => {
             </head>
             <body style="margin:0; padding:0; font-family:Segoe UI,Tahoma,Geneva,sans-serif; background:#f5f5f5;">
               <table align="center" cellpadding="0" cellspacing="0" style="max-width:600px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;">
-                
-                <!-- Header -->
                 <tr>
                   <td style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:30px; text-align:center;">
                     <h1 style="margin:0; font-size:28px; font-weight:600; color:#fff;">🔐 OTP Verification</h1>
                     <p style="margin:10px 0 0; font-size:16px; color:#eee;">Secure access to your Newzzy account</p>
                   </td>
                 </tr>
-      
-                <!-- OTP Section -->
                 <tr>
                   <td style="padding:30px; text-align:center;">
                     <div style="display:inline-block; background:#f8f9ff; border:2px dashed #667eea; border-radius:12px; padding:20px 30px;">
                       <p style="margin:0 0 10px; font-size:14px; color:#666; font-weight:600; text-transform:uppercase;">Your OTP Code</p>
                       <h2 style="margin:0; font-size:36px; font-weight:700; color:#667eea; letter-spacing:4px; font-family:Courier New,monospace;">${otp}</h2>
                     </div>
-      
                     <div style="margin-top:30px; background:#fff5f5; border-left:4px solid #f56565; padding:15px 20px; border-radius:6px;">
-                      <p style="margin:0; color:#c53030; font-size:14px; font-weight:500;">
-                        ⚡ This OTP will expire in 5 minutes for security reasons.
-                      </p>
+                      <p style="margin:0; color:#c53030; font-size:14px; font-weight:500;">⚡ This OTP will expire in 5 minutes for security reasons.</p>
                     </div>
-      
                     <p style="margin-top:30px; font-size:16px; color:#666;">Enter this code in your Newzzy app to complete verification.</p>
                   </td>
                 </tr>
-      
-                <!-- Footer -->
                 <tr>
                   <td style="background:#f8f9fa; padding:20px; text-align:center; font-size:12px; color:#3d0079; border-top:1px solid #e9ecef;">
                     <p style="margin:0;">If you didn't request this OTP, ignore this email or contact support.</p>
                     <p style="margin:5px 0 0;">© 2025 Newzzy. All rights reserved.</p>
                   </td>
                 </tr>
-      
               </table>
             </body>
-          </html>
-        `,
+          </html>`,
     };
 
+    log.debug("sendOtpEmail", "Calling Brevo sendTransacEmail", { toEmail });
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log("OTP Email sent successfully. Message ID:", result.messageId);
+    log.info("sendOtpEmail", "OTP email sent successfully", { toEmail, messageId: result.messageId });
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error("Error sending OTP:", error);
+    log.error("sendOtpEmail", "Failed to send OTP email", {
+      toEmail,
+      errorMessage: error.message,
+      statusCode: error.status ?? error.statusCode ?? null,
+      brevoResponse: error.response?.body ?? null,  // <-- Brevo error detail
+    });
     return { success: false, error: error.message };
   }
 };
 
-// Send Password Reset OTP Email
 const sendPasswordResetOtpEmail = async (toEmail, otp) => {
+  log.info("sendPasswordResetOtpEmail", "Attempting to send password reset OTP email", { toEmail });
   try {
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -101,554 +114,394 @@ const sendPasswordResetOtpEmail = async (toEmail, otp) => {
       subject: "🔐 Password Reset OTP - Newzzy",
       htmlContent: `
           <html>
-            <head>
-              <title>Password Reset OTP</title>
-            </head>
+            <head><title>Password Reset OTP</title></head>
             <body style="margin:0; padding:0; font-family:Segoe UI,Tahoma,Geneva,sans-serif; background:#f5f5f5;">
               <table align="center" cellpadding="0" cellspacing="0" style="max-width:600px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;">
-                
-                <!-- Header -->
                 <tr>
                   <td style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); padding:30px; text-align:center;">
                     <h1 style="margin:0; font-size:28px; font-weight:600; color:#fff;">🔐 Password Reset</h1>
                     <p style="margin:10px 0 0; font-size:16px; color:#eee;">Secure password reset for your Newzzy account</p>
                   </td>
                 </tr>
-      
-                <!-- OTP Section -->
                 <tr>
                   <td style="padding:30px; text-align:center;">
                     <div style="margin-bottom:20px;">
                       <p style="margin:0; font-size:18px; color:#333; font-weight:500;">Password Reset Requested</p>
-                      <p style="margin:10px 0 0; font-size:14px; color:#666;">We received a request to reset your password. Use the code below to proceed.</p>
+                      <p style="margin:10px 0 0; font-size:14px; color:#666;">Use the code below to proceed.</p>
                     </div>
-
                     <div style="display:inline-block; background:#fff5f5; border:2px dashed #f5576c; border-radius:12px; padding:20px 30px;">
                       <p style="margin:0 0 10px; font-size:14px; color:#666; font-weight:600; text-transform:uppercase;">Your Reset Code</p>
                       <h2 style="margin:0; font-size:36px; font-weight:700; color:#f5576c; letter-spacing:4px; font-family:Courier New,monospace;">${otp}</h2>
                     </div>
-      
                     <div style="margin-top:30px; background:#fff3cd; border-left:4px solid #ffc107; padding:15px 20px; border-radius:6px;">
-                      <p style="margin:0; color:#856404; font-size:14px; font-weight:500;">
-                        ⏰ This code will expire in 10 minutes for security reasons.
-                      </p>
+                      <p style="margin:0; color:#856404; font-size:14px; font-weight:500;">⏰ This code will expire in 10 minutes for security reasons.</p>
                     </div>
-
                     <div style="margin-top:20px; background:#d1ecf1; border-left:4px solid #bee5eb; padding:15px 20px; border-radius:6px;">
-                      <p style="margin:0; color:#0c5460; font-size:14px; font-weight:500;">
-                        🔒 If you didn't request this password reset, please ignore this email and your password will remain unchanged.
-                      </p>
+                      <p style="margin:0; color:#0c5460; font-size:14px; font-weight:500;">🔒 If you didn't request this, ignore this email — your password won't change.</p>
                     </div>
-      
                     <p style="margin-top:30px; font-size:16px; color:#666;">Enter this code in your Newzzy app to reset your password.</p>
                   </td>
                 </tr>
-      
-                <!-- Footer -->
                 <tr>
                   <td style="background:#f8f9fa; padding:20px; text-align:center; font-size:12px; color:#3d0079; border-top:1px solid #e9ecef;">
-                    <p style="margin:0;">For security reasons, this code can only be used once and will expire automatically.</p>
+                    <p style="margin:0;">This code can only be used once and will expire automatically.</p>
                     <p style="margin:5px 0 0;">© 2025 Newzzy. All rights reserved.</p>
                   </td>
                 </tr>
-      
               </table>
             </body>
-          </html>
-        `,
+          </html>`,
     };
 
+    log.debug("sendPasswordResetOtpEmail", "Calling Brevo sendTransacEmail", { toEmail });
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(
-      "Password Reset OTP Email sent successfully. Message ID:",
-      result.messageId
-    );
+    log.info("sendPasswordResetOtpEmail", "Password reset OTP email sent", { toEmail, messageId: result.messageId });
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error("Error sending password reset OTP:", error);
+    log.error("sendPasswordResetOtpEmail", "Failed to send password reset OTP email", {
+      toEmail,
+      errorMessage: error.message,
+      statusCode: error.status ?? error.statusCode ?? null,
+      brevoResponse: error.response?.body ?? null,
+    });
     return { success: false, error: error.message };
   }
 };
 
-// Send OTP
+// ─── Controllers ──────────────────────────────────────────────────────────────
+
 const sendOTP = async (req, res) => {
+  const fn = "sendOTP";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email } = req.body;
-
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
+      log.warn(fn, "Missing email in request body");
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
 
-    // Generate OTP and hash
     const otp = generateOTP();
     const hash = generateHash(email, otp);
 
-    // Store OTP with expiration (5 minutes)
-    otpStore.set(email, {
-      otp,
-      hash,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-      attempts: 0,
-    });
+    otpStore.set(email, { otp, hash, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0 });
+    log.debug(fn, "OTP stored", { email, expiresIn: "5m", otpStoreSize: otpStore.size });
 
-    // Send email
     const emailResult = await sendOtpEmail(email, otp);
 
     if (emailResult.success) {
-      res.status(200).json({
+      log.info(fn, "OTP flow completed successfully", { email });
+      return res.status(200).json({
         success: true,
         message: "OTP sent successfully",
         hash,
-        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"), // Mask email for security
+        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"),
       });
     } else {
-      res.status(500).json({
-        success: false,
-        message: "Failed to send OTP email",
-      });
+      log.error(fn, "Email send failed", { email, error: emailResult.error });
+      return res.status(500).json({ success: false, message: "Failed to send OTP email" });
     }
   } catch (error) {
-    console.error("Send OTP error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Verify OTP
 const verifyOTP = async (req, res) => {
+  const fn = "verifyOTP";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email, otp, hash } = req.body;
 
     if (!email || !otp || !hash) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, OTP, and hash are required",
-      });
+      log.warn(fn, "Missing required fields", { hasEmail: !!email, hasOtp: !!otp, hasHash: !!hash });
+      return res.status(400).json({ success: false, message: "Email, OTP, and hash are required" });
     }
 
     const storedData = otpStore.get(email);
-
     if (!storedData) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP not found or expired",
-      });
+      log.warn(fn, "No OTP found in store for email", { email, otpStoreSize: otpStore.size });
+      return res.status(400).json({ success: false, message: "OTP not found or expired" });
     }
 
-    // For login flow, check if credentials were pre-verified (if this field exists, it means we're in login flow)
-    // This is just a safety check - not strictly necessary since we have separate endpoints
+    log.debug(fn, "OTP entry found", { email, attempts: storedData.attempts, expiresAt: new Date(storedData.expiresAt).toISOString() });
 
-    // Check expiration
     if (Date.now() > storedData.expiresAt) {
+      log.warn(fn, "OTP expired", { email, expiredAt: new Date(storedData.expiresAt).toISOString() });
       otpStore.delete(email);
-      return res.status(400).json({
-        success: false,
-        message: "OTP expired",
-      });
+      return res.status(400).json({ success: false, message: "OTP expired" });
     }
 
-    // Check attempts (max 3)
     if (storedData.attempts >= 3) {
+      log.warn(fn, "Max OTP attempts reached", { email, attempts: storedData.attempts });
       otpStore.delete(email);
-      return res.status(400).json({
-        success: false,
-        message: "Too many failed attempts. Please request a new OTP.",
-      });
+      return res.status(400).json({ success: false, message: "Too many failed attempts. Please request a new OTP." });
     }
 
-    // Verify hash
     const expectedHash = generateHash(email, otp);
-    if (hash !== storedData.hash) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid hash",
-      });
+    if (hash !== expectedHash) {   // ← bug fix: compare against expectedHash
+      log.warn(fn, "Hash mismatch", { email });
+      return res.status(400).json({ success: false, message: "Invalid hash" });
     }
 
-    // Verify OTP
     if (otp !== storedData.otp) {
       storedData.attempts += 1;
-      return res.status(400).json({
-        success: false,
-        message: "Invalid OTP",
-        attemptsLeft: 3 - storedData.attempts,
-      });
+      log.warn(fn, "OTP mismatch", { email, attempts: storedData.attempts, attemptsLeft: 3 - storedData.attempts });
+      return res.status(400).json({ success: false, message: "Invalid OTP", attemptsLeft: 3 - storedData.attempts });
     }
 
-    // OTP verified successfully
     otpStore.delete(email);
-    res.status(200).json({
-      success: true,
-      message: "OTP verified successfully",
-    });
+    log.info(fn, "OTP verified successfully", { email });
+    return res.status(200).json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
-    console.error("Verify OTP error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Verify credentials and send OTP
 const verifyCredentialsAndSendOTP = async (req, res) => {
+  const fn = "verifyCredentialsAndSendOTP";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
-      });
+      log.warn(fn, "Missing email or password");
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
 
-    // Check if user exists and verify password
-    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
+    log.debug(fn, "Looking up user in DB", { email });
+    const user = await User.findOne({ email }).hint({ email: 1 });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      log.warn(fn, "User not found", { email });
+      return res.status(404).json({ success: false, message: "Invalid credentials" });
     }
 
+    log.debug(fn, "User found, comparing password", { email });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      log.warn(fn, "Password mismatch", { email });
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
-    // Credentials are valid, now send OTP
     const otp = generateOTP();
     const hash = generateHash(email, otp);
+    otpStore.set(email, { otp, hash, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0, credentialsVerified: true });
+    log.debug(fn, "OTP stored with credentialsVerified=true", { email });
 
-    // Store OTP with expiration (5 minutes)
-    otpStore.set(email, {
-      otp,
-      hash,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-      attempts: 0,
-      credentialsVerified: true, // Mark that credentials were verified
-    });
-
-    // Send email
     const emailResult = await sendOtpEmail(email, otp);
-
     if (emailResult.success) {
-      res.status(200).json({
+      log.info(fn, "Credentials verified and OTP sent", { email });
+      return res.status(200).json({
         success: true,
         message: "Credentials verified. OTP sent successfully",
         hash,
-        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"), // Mask email for security
+        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"),
       });
     } else {
-      res.status(500).json({
-        success: false,
-        message: "Failed to send OTP email",
-      });
+      log.error(fn, "Email send failed after credential verification", { email, error: emailResult.error });
+      return res.status(500).json({ success: false, message: "Failed to send OTP email" });
     }
   } catch (error) {
-    console.error("Verify credentials and send OTP error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Forgot Password - Send OTP
 const forgotPasswordSendOTP = async (req, res) => {
+  const fn = "forgotPasswordSendOTP";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
+      log.warn(fn, "Missing email");
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
 
-    // Check if user exists
-    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
+    log.debug(fn, "Looking up user in DB", { email });
+    const user = await User.findOne({ email }).hint({ email: 1 });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "No account found with this email address",
-      });
+      log.warn(fn, "No account found for email", { email });
+      return res.status(404).json({ success: false, message: "No account found with this email address" });
     }
 
-    // Generate OTP and hash
     const otp = generateOTP();
     const hash = generateHash(email, otp);
+    otpStore.set(email, { otp, hash, expiresAt: Date.now() + 10 * 60 * 1000, attempts: 0, type: "password_reset" });
+    log.debug(fn, "Password reset OTP stored", { email, expiresIn: "10m" });
 
-    // Store OTP with expiration (10 minutes for password reset)
-    otpStore.set(email, {
-      otp,
-      hash,
-      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes for password reset
-      attempts: 0,
-      type: "password_reset", // Mark as password reset OTP
-    });
-
-    // Send email with different template
     const emailResult = await sendPasswordResetOtpEmail(email, otp);
-
     if (emailResult.success) {
-      res.status(200).json({
+      log.info(fn, "Password reset OTP sent", { email });
+      return res.status(200).json({
         success: true,
         message: "Password reset OTP sent successfully",
         hash,
-        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"), // Mask email for security
+        email: email.replace(/(.{3})(.*)(@.*)/, "$1***$3"),
       });
     } else {
-      res.status(500).json({
-        success: false,
-        message: "Failed to send password reset OTP email",
-      });
+      log.error(fn, "Email send failed", { email, error: emailResult.error });
+      return res.status(500).json({ success: false, message: "Failed to send password reset OTP email" });
     }
   } catch (error) {
-    console.error("Forgot password send OTP error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Verify Password Reset OTP
 const verifyPasswordResetOTP = async (req, res) => {
+  const fn = "verifyPasswordResetOTP";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email, otp, hash } = req.body;
 
     if (!email || !otp || !hash) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, OTP, and hash are required",
-      });
+      log.warn(fn, "Missing required fields", { hasEmail: !!email, hasOtp: !!otp, hasHash: !!hash });
+      return res.status(400).json({ success: false, message: "Email, OTP, and hash are required" });
     }
 
     const storedData = otpStore.get(email);
-
     if (!storedData) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP not found or expired",
-      });
+      log.warn(fn, "No OTP found in store", { email });
+      return res.status(400).json({ success: false, message: "OTP not found or expired" });
     }
 
-    // Check if this is a password reset OTP
+    log.debug(fn, "OTP entry found", { email, type: storedData.type, attempts: storedData.attempts });
+
     if (storedData.type !== "password_reset") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid OTP type",
-      });
+      log.warn(fn, "OTP type mismatch", { email, actualType: storedData.type, expectedType: "password_reset" });
+      return res.status(400).json({ success: false, message: "Invalid OTP type" });
     }
 
-    // Check expiration
     if (Date.now() > storedData.expiresAt) {
+      log.warn(fn, "OTP expired", { email });
       otpStore.delete(email);
-      return res.status(400).json({
-        success: false,
-        message: "OTP expired",
-      });
+      return res.status(400).json({ success: false, message: "OTP expired" });
     }
 
-    // Check attempts (max 3)
     if (storedData.attempts >= 3) {
+      log.warn(fn, "Max attempts reached", { email });
       otpStore.delete(email);
-      return res.status(400).json({
-        success: false,
-        message: "Too many failed attempts. Please request a new OTP.",
-      });
+      return res.status(400).json({ success: false, message: "Too many failed attempts. Please request a new OTP." });
     }
 
-    // Verify hash
     const expectedHash = generateHash(email, otp);
-    if (hash !== storedData.hash) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid hash",
-      });
+    if (hash !== expectedHash) {   // ← bug fix: compare against expectedHash
+      log.warn(fn, "Hash mismatch", { email });
+      return res.status(400).json({ success: false, message: "Invalid hash" });
     }
 
-    // Verify OTP
     if (otp !== storedData.otp) {
       storedData.attempts += 1;
-      return res.status(400).json({
-        success: false,
-        message: "Invalid OTP",
-        attemptsLeft: 3 - storedData.attempts,
-      });
+      log.warn(fn, "OTP mismatch", { email, attempts: storedData.attempts });
+      return res.status(400).json({ success: false, message: "Invalid OTP", attemptsLeft: 3 - storedData.attempts });
     }
 
-    // OTP verified successfully - generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 30 * 60 * 1000; // 30 minutes
-
-    // Store reset token
-    otpStore.set(`reset_${email}`, {
-      token: resetToken,
-      expiresAt: resetTokenExpiry,
-      email: email,
-    });
-
-    // Clear OTP data
+    const resetTokenExpiry = Date.now() + 30 * 60 * 1000;
+    otpStore.set(`reset_${email}`, { token: resetToken, expiresAt: resetTokenExpiry, email });
     otpStore.delete(email);
+    log.info(fn, "Password reset OTP verified, reset token issued", { email, resetTokenExpiresIn: "30m" });
 
-    res.status(200).json({
-      success: true,
-      message: "OTP verified successfully",
-      resetToken: resetToken,
-    });
+    return res.status(200).json({ success: true, message: "OTP verified successfully", resetToken });
   } catch (error) {
-    console.error("Verify password reset OTP error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Reset Password
 const resetPassword = async (req, res) => {
+  const fn = "resetPassword";
+  log.info(fn, "Request received", { email: req.body.email });
   try {
     const { email, newPassword, resetToken } = req.body;
 
     if (!email || !newPassword || !resetToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, new password, and reset token are required",
-      });
+      log.warn(fn, "Missing required fields", { hasEmail: !!email, hasPassword: !!newPassword, hasToken: !!resetToken });
+      return res.status(400).json({ success: false, message: "Email, new password, and reset token are required" });
     }
 
-    // Validate password strength
     if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 6 characters long",
-      });
+      log.warn(fn, "Password too short", { email, length: newPassword.length });
+      return res.status(400).json({ success: false, message: "Password must be at least 6 characters long" });
     }
 
-    // Check reset token
     const resetData = otpStore.get(`reset_${email}`);
     if (!resetData) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired reset token",
-      });
+      log.warn(fn, "No reset token found in store", { email });
+      return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
     }
 
-    // Check token expiry
     if (Date.now() > resetData.expiresAt) {
+      log.warn(fn, "Reset token expired", { email, expiredAt: new Date(resetData.expiresAt).toISOString() });
       otpStore.delete(`reset_${email}`);
-      return res.status(400).json({
-        success: false,
-        message: "Reset token expired",
-      });
+      return res.status(400).json({ success: false, message: "Reset token expired" });
     }
 
-    // Verify token
     if (resetData.token !== resetToken || resetData.email !== email) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid reset token",
-      });
+      log.warn(fn, "Reset token mismatch", { email });
+      return res.status(400).json({ success: false, message: "Invalid reset token" });
     }
 
-    // Find user and update password
-    const user = await User.findOne({ email }).hint({ email: 1 }); // Use email unique index
+    log.debug(fn, "Looking up user in DB", { email });
+    const user = await User.findOne({ email }).hint({ email: 1 });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      log.warn(fn, "User not found during password reset", { email });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Hash new password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    // Update password
+    log.debug(fn, "Hashing new password", { email });
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     user.password = hashedPassword;
     await user.save();
 
-    // Clear reset token
     otpStore.delete(`reset_${email}`);
-
-    res.status(200).json({
-      success: true,
-      message: "Password reset successfully",
-    });
+    log.info(fn, "Password reset successfully", { email });
+    return res.status(200).json({ success: true, message: "Password reset successfully" });
   } catch (error) {
-    console.error("Reset password error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    log.error(fn, "Unhandled exception", { errorMessage: error.message, stack: error.stack });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-// Password validation function
+// ─── Password Validation ──────────────────────────────────────────────────────
 const validatePassword = (password) => {
   const validations = {
-    minLength: password.length >= 6,
-    hasUppercase: /[A-Z]/.test(password),
-    hasLowercase: /[a-z]/.test(password),
-    hasNumber: /\d/.test(password),
+    minLength:      password.length >= 6,
+    hasUppercase:   /[A-Z]/.test(password),
+    hasLowercase:   /[a-z]/.test(password),
+    hasNumber:      /\d/.test(password),
     hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
   };
-
   const isValid = Object.values(validations).every(Boolean);
-
   return {
     isValid,
     validations,
-    errors: []
-      .concat(
-        !validations.minLength
-          ? ["Password must be at least 6 characters long"]
-          : []
-      )
-      .concat(
-        !validations.hasUppercase
-          ? ["Password must contain at least one uppercase letter"]
-          : []
-      )
-      .concat(
-        !validations.hasLowercase
-          ? ["Password must contain at least one lowercase letter"]
-          : []
-      )
-      .concat(
-        !validations.hasNumber
-          ? ["Password must contain at least one number"]
-          : []
-      )
-      .concat(
-        !validations.hasSpecialChar
-          ? ["Password must contain at least one special character"]
-          : []
-      ),
+    errors: [
+      !validations.minLength      && "Password must be at least 6 characters long",
+      !validations.hasUppercase   && "Password must contain at least one uppercase letter",
+      !validations.hasLowercase   && "Password must contain at least one lowercase letter",
+      !validations.hasNumber      && "Password must contain at least one number",
+      !validations.hasSpecialChar && "Password must contain at least one special character",
+    ].filter(Boolean),
   };
 };
 
-// Clear expired OTPs (cleanup function)
+// ─── OTP Store Cleanup ────────────────────────────────────────────────────────
 const clearExpiredOTPs = () => {
   const now = Date.now();
-  for (const [email, data] of otpStore.entries()) {
+  let cleared = 0;
+  for (const [key, data] of otpStore.entries()) {
     if (now > data.expiresAt) {
-      otpStore.delete(email);
+      otpStore.delete(key);
+      cleared++;
     }
+  }
+  if (cleared > 0) {
+    log.info("clearExpiredOTPs", "Cleared expired OTP entries", { cleared, remaining: otpStore.size });
   }
 };
 
-// Run cleanup every 10 minutes
 setInterval(clearExpiredOTPs, 10 * 60 * 1000);
 
 module.exports = {
