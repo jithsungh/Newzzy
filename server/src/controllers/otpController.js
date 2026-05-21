@@ -31,7 +31,7 @@ const sendOtpEmail = async (toEmail, otp) => {
 
     const sendSmtpEmail = {
       to: [{ email: toEmail }],
-      sender: { name: "Newzzy", email: "no.reply.newzzy@gmail.com" },
+      sender: { name: "Jithsungh", email: "jithsungh@gmail.com" },
       subject: "Your OTP Code - Newzzy",
       htmlContent: `
           <html>
