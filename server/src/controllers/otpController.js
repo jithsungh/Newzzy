@@ -27,10 +27,12 @@ if (!process.env.JWT_SECRET) {
 const otpStore = new Map();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+// TODO: remove before production — bypasses email sending for local dev
+const DEV_OTP = "123456";
+
 const generateOTP = () => {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  log.debug("generateOTP", "OTP generated");  // never log the actual OTP value
-  return otp;
+  log.warn("generateOTP", "DEV MODE: OTP hardcoded to 123456");
+  return DEV_OTP;
 };
 
 const generateHash = (email, otp) => {
@@ -88,10 +90,9 @@ const sendOtpEmail = async (toEmail, otp) => {
           </html>`,
     };
 
-    log.debug("sendOtpEmail", "Calling Brevo sendTransacEmail", { toEmail });
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    log.info("sendOtpEmail", "OTP email sent successfully", { toEmail, messageId: result.messageId });
-    return { success: true, messageId: result.messageId };
+    // DEV MODE: skip actual email send
+    log.warn("sendOtpEmail", "DEV MODE: skipping Brevo call, OTP is 123456", { toEmail });
+    return { success: true, messageId: "dev-mock-id" };
   } catch (error) {
     log.error("sendOtpEmail", "Failed to send OTP email", {
       toEmail,
@@ -153,10 +154,9 @@ const sendPasswordResetOtpEmail = async (toEmail, otp) => {
           </html>`,
     };
 
-    log.debug("sendPasswordResetOtpEmail", "Calling Brevo sendTransacEmail", { toEmail });
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    log.info("sendPasswordResetOtpEmail", "Password reset OTP email sent", { toEmail, messageId: result.messageId });
-    return { success: true, messageId: result.messageId };
+    // DEV MODE: skip actual email send
+    log.warn("sendPasswordResetOtpEmail", "DEV MODE: skipping Brevo call, OTP is 123456", { toEmail });
+    return { success: true, messageId: "dev-mock-id" };
   } catch (error) {
     log.error("sendPasswordResetOtpEmail", "Failed to send password reset OTP email", {
       toEmail,
